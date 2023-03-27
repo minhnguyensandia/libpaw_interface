@@ -352,7 +352,7 @@ subroutine pawxc_size_dvxc_local()
 &           ixc==23.or.ixc==41.or.ixc==42.or.ixc==1402000) then
      ndvxc_=15
    else if (ixc<0) then
-     if (libxc_functionals_has_kxc() then
+     if (libxc_functionals_has_kxc()) then
        ndvxc_=2*min(nspden,2)+1 ; if (order==-2) ndvxc_=2
        if (need_gradient) ndvxc_=15
      end if
@@ -368,7 +368,7 @@ subroutine pawxc_size_dvxc_local()
    else if ((ixc>=7.and.ixc<=10).or.ixc==13.or.ixc==1402000) then
      nd2vxc_=3*min(nspden,2)-2
    else if (ixc<0) then
-     if (libxc_functionals_has_k3xc() then
+     if (libxc_functionals_has_k3xc()) then
        if (.not.need_gradient) nd2vxc_=3*min(nspden,2)-2
      end if  
    end if
