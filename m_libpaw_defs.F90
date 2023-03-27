@@ -34,15 +34,24 @@ module m_libpaw_defs
  real(dp), parameter :: one=1._dp
  real(dp), parameter :: two=2._dp
  real(dp), parameter :: three=3._dp
- real(dp), parameter :: four=4._dp
- real(dp), parameter :: half=0.50_dp
+ real(dp), parameter :: four =4._dp
+ real(dp), parameter :: six  =6._dp
+ real(dp), parameter :: seven=7._dp
+ real(dp), parameter :: eight=8._dp
+ real(dp), parameter :: nine =9._dp
+ real(dp), parameter :: half=one/two
  real(dp), parameter :: third=one/three
- real(dp), parameter :: quarter=0.25_dp
- real(dp), parameter :: eighth=0.125_dp
+ real(dp), parameter :: two_thirds=two/three
+ real(dp), parameter :: four_thirds=four/three
+ real(dp), parameter :: quarter=one/four
+ real(dp), parameter :: three_quarters=three/four
+ real(dp), parameter :: eighth=one/eight
+ real(dp), parameter :: ninth=one/nine
  real(dp), parameter :: sqrt2=1.4142135623730950488016887242096939_dp
  real(dp), parameter :: sqrt3=1.7320508075688772935274463415058739_dp
  real(dp), parameter :: sqrthalf=0.70710678118654752440084436210484697_dp
  real(dp), parameter :: pi=3.141592653589793238462643383279502884197_dp
+ real(dp), parameter :: piinv=one/pi
  real(dp), parameter :: two_pi=two*pi
  real(dp), parameter :: four_pi=four*pi
  real(dp), parameter :: tol3= 0.001_dp
@@ -58,7 +67,7 @@ module m_libpaw_defs
 !-----------------------------------------------
  complex(dpc), parameter :: czero=(0._dp,0._dp)         ! 0 (complex)
  complex(dpc), parameter :: cone =(1._dp,0._dp)         ! 1 (complex)
-
+ complex(dpc), parameter :: j_dpc = dcmplx(0.d0,1.d0)   ! j (complex)
 !Character constants
 !-----------------------------------------------
  character(len=1), parameter :: ch10 = char(10)         ! carriage return
