@@ -309,7 +309,7 @@ write(10,*) 'nfft,nfftot',nfft,nfftot
  write(10,*) 'paral_atom',paral_atom
 
  nullify(my_atmtab);if (present(mpi_atmtab)) my_atmtab => mpi_atmtab
- my_comm_atom=xmpi_comm_self;if (present(comm_atom)) my_comm_atom=comm_atom
+ my_comm_atom=xpaw_mpi_comm_self;if (present(comm_atom)) my_comm_atom=comm_atom
  call get_my_atmtab(my_comm_atom,my_atmtab,my_atmtab_allocated,paral_atom,natom,my_natom_ref=my_natom)
 
 !----- Various initializations
@@ -319,7 +319,7 @@ write(10,*) 'nfft,nfftot',nfft,nfftot
    nsploop=nsppol;if (paw_ij(1)%ndij==4) nsploop=4
  end if
  usexcnhat=maxval(pawtab(1:ntypat)%usexcnhat)
- my_comm_grid=xmpi_comm_self;if (present(mpi_comm_grid)) my_comm_grid=mpi_comm_grid
+ my_comm_grid=xpaw_mpi_comm_self;if (present(mpi_comm_grid)) my_comm_grid=mpi_comm_grid
 
 !------ Select potential for Dij^hat computation
  v_dijhat_allocated=.false.
@@ -2139,7 +2139,7 @@ subroutine pawdijhat(dijhat,cplex_dij,qphase,gprimd,iatom,&
  nfgd=pawfgrtab%nfgd
  qne0=(qphon(1)**2+qphon(2)**2+qphon(3)**2>=1.d-15)
  has_qphase=(qne0.and.qphase==2)
- my_comm_grid=xmpi_comm_self;if (present(mpi_comm_grid)) my_comm_grid=mpi_comm_grid
+ my_comm_grid=xpaw_mpi_comm_self;if (present(mpi_comm_grid)) my_comm_grid=mpi_comm_grid
 
 !Check data consistency
  if (size(dijhat,1)/=cplex_dij*qphase*lmn2_size.or.size(dijhat,2)/=ndij) then
@@ -2247,8 +2247,8 @@ subroutine pawdijhat(dijhat,cplex_dij,qphase,gprimd,iatom,&
        prod=prod*ucvol/dble(ngridtot)
 
 !      Reduction in case of parallelism
-       if (xmpi_comm_size(my_comm_grid)>1) then
-         call xmpi_sum(prod,my_comm_grid,ier)
+       if (xpaw_mpi_comm_size(my_comm_grid)>1) then
+         call xpaw_mpi_sum(prod,my_comm_grid,ier)
        end if
 
 !      ----------------------------------------------------------
@@ -3532,8 +3532,8 @@ subroutine pawdijfr(gprimd,idir,ipert,my_natom,natom,nfft,ngfft,nspden,nsppol,nt
 !Set up parallelism over atoms
  paral_atom=(present(comm_atom).and.(my_natom/=natom))
  nullify(my_atmtab);if (present(mpi_atmtab)) my_atmtab => mpi_atmtab
- my_comm_atom=xmpi_comm_self;if (present(comm_atom)) my_comm_atom=comm_atom
- my_comm_grid=xmpi_comm_self;if (present(mpi_comm_grid)) my_comm_grid=mpi_comm_grid
+ my_comm_atom=xpaw_mpi_comm_self;if (present(comm_atom)) my_comm_atom=comm_atom
+ my_comm_grid=xpaw_mpi_comm_self;if (present(mpi_comm_grid)) my_comm_grid=mpi_comm_grid
  call get_my_atmtab(my_comm_atom,my_atmtab,my_atmtab_allocated,paral_atom,natom,my_natom_ref=my_natom)
 
 !Compatibility tests
@@ -3789,7 +3789,7 @@ subroutine pawdijfr(gprimd,idir,ipert,my_natom,natom,nfft,ngfft,nspden,nsppol,nt
              LIBPAW_DEALLOCATE(intv2)
 
 !            --- Reduction in case of parallelization ---
-             call xmpi_sum(intv,my_comm_grid,ier)
+             call xpaw_mpi_sum(intv,my_comm_grid,ier)
 
              paw_ij1(iatom)%dijfr(:,ispden)=zero
 
@@ -3996,7 +3996,7 @@ subroutine pawdijfr(gprimd,idir,ipert,my_natom,natom,nfft,ngfft,nspden,nsppol,nt
            intv(:,:)=fact*intv(:,:)
 
 !          --- Reduction in case of parallelization ---
-           call xmpi_sum(intv,my_comm_grid,ier)
+           call xpaw_mpi_sum(intv,my_comm_grid,ier)
 
            paw_ij1(iatom)%dijfr(:,ispden)=zero
 
@@ -4629,7 +4629,7 @@ subroutine symdij(gprimd,indsym,ipert,my_natom,natom,nsym,ntypat,option_dij,&
 !Set up parallelism over atoms
  paral_atom=(present(comm_atom).and.(my_natom/=natom))
  nullify(my_atmtab);if (present(mpi_atmtab)) my_atmtab => mpi_atmtab
- my_comm_atom=xmpi_comm_self;if (present(comm_atom)) my_comm_atom=comm_atom
+ my_comm_atom=xpaw_mpi_comm_self;if (present(comm_atom)) my_comm_atom=comm_atom
  call get_my_atmtab(my_comm_atom,my_atmtab,my_atmtab_allocated,paral_atom,natom,my_natom_ref=my_natom)
 
 !Determine sizes of dij array according to options
@@ -5393,7 +5393,7 @@ subroutine symdij_all(gprimd,indsym,ipert,my_natom,natom,nsym,ntypat,&
 !Set up parallelism over atoms
  paral_atom=(present(comm_atom))
  nullify(my_atmtab);if (present(mpi_atmtab)) my_atmtab => mpi_atmtab
- my_comm_atom=xmpi_comm_self;if (present(comm_atom)) my_comm_atom=comm_atom
+ my_comm_atom=xpaw_mpi_comm_self;if (present(comm_atom)) my_comm_atom=comm_atom
  call get_my_atmtab(my_comm_atom,my_atmtab,my_atmtab_allocated,paral_atom,natom,my_natom_ref=my_natom)
 
  do ii=1,nopt
@@ -5457,7 +5457,7 @@ subroutine pawdij_gather(dij_in,dij_out,comm_atom,mpi_atmtab)
 
 ! *************************************************************************
 
- nproc=xmpi_comm_size(comm_atom)
+ nproc=xpaw_mpi_comm_size(comm_atom)
  dij_size=size(dij_in,dim=1)
 
  buf_dp_size=0
@@ -5511,7 +5511,7 @@ subroutine pawdij_gather(dij_in,dij_out,comm_atom,mpi_atmtab)
  LIBPAW_ALLOCATE(displ_dp ,(nproc))
  LIBPAW_ALLOCATE(count_tot,(2*nproc))
  bufsz(1)=buf_int_size; bufsz(2)=buf_dp_size
- call xmpi_allgather(bufsz,2,count_tot,comm_atom,ierr)
+ call xpaw_mpi_allgather(bufsz,2,count_tot,comm_atom,ierr)
  do ii=1,nproc
    count_int(ii)=count_tot(2*ii-1)
    count_dp (ii)=count_tot(2*ii)
@@ -5526,8 +5526,8 @@ subroutine pawdij_gather(dij_in,dij_out,comm_atom,mpi_atmtab)
  LIBPAW_DEALLOCATE(count_tot)
  LIBPAW_ALLOCATE(buf_int_all,(buf_int_size_all))
  LIBPAW_ALLOCATE(buf_dp_all ,(buf_dp_size_all))
- call xmpi_allgatherv(buf_int,buf_int_size,buf_int_all,count_int,displ_int,comm_atom,ierr)
- call xmpi_allgatherv(buf_dp ,buf_dp_size ,buf_dp_all ,count_dp ,displ_dp ,comm_atom,ierr)
+ call xpaw_mpi_allgatherv(buf_int,buf_int_size,buf_int_all,count_int,displ_int,comm_atom,ierr)
+ call xpaw_mpi_allgatherv(buf_dp ,buf_dp_size ,buf_dp_all ,count_dp ,displ_dp ,comm_atom,ierr)
  LIBPAW_DEALLOCATE(count_int)
  LIBPAW_DEALLOCATE(displ_int)
  LIBPAW_DEALLOCATE(count_dp)

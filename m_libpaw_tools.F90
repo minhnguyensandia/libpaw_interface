@@ -64,7 +64,7 @@ module m_libpaw_tools
  private :: libpaw_lock_and_write ! Write a string to a file with locking mechanism
 
 !PRIVATE VARIABLES
- integer,save :: LIBPAW_WRITE_COMM=xmpi_world ! Communicator used for the parallel write
+ integer,save :: LIBPAW_WRITE_COMM=xpaw_mpi_world ! Communicator used for the parallel write
  integer,save :: LIBPAW_COMMENT_COUNT=0           ! Number of COMMENTs printed in log file
  integer,save :: LIBPAW_WARNING_COUNT=0           ! Number of WARNINGs printed in log file
  integer,save :: LIBPAW_EXIT_FLAG=0               ! Flag set to 1 if an exit is requested
@@ -129,8 +129,8 @@ subroutine libpaw_wrtout(unit,msg,mode_paral)
 
 !Communicator used for the parallel write
  comm=LIBPAW_WRITE_COMM
- nproc = xmpi_comm_size(comm)
- me    = xmpi_comm_rank(comm)
+ nproc = xpaw_mpi_comm_size(comm)
+ me    = xpaw_mpi_comm_rank(comm)
 
  if ((my_mode_paral=='COLL').or.(nproc==1)) then
    if (me==master) then
@@ -358,7 +358,7 @@ subroutine libpaw_msg_hndl(msg,level,mode_paral,file,line)
  case ('ERROR','BUG')
    call libpaw_wrtout(std_out,sbuf,mode_paral)
    inquire(file=LIBPAW_MPIABORTFILE,exist=file_exists)
-   if ((.not.file_exists).and.xmpi_comm_size(xmpi_world)>1) then
+   if ((.not.file_exists).and.xpaw_mpi_comm_size(xpaw_mpi_world)>1) then
      call libpaw_lock_and_write(LIBPAW_MPIABORTFILE,sbuf)
    end if
    call libpaw_leave(mode_paral)
@@ -441,7 +441,7 @@ subroutine libpaw_spmsg_mpisum(mpicomm)
 
   buf(1)=LIBPAW_COMMENT_COUNT;buf(2)=LIBPAW_WARNING_COUNT;buf(3)=LIBPAW_EXIT_FLAG
 
-  call xmpi_sum(buf,mpicomm,ierr)
+  call xpaw_mpi_sum(buf,mpicomm,ierr)
 
   LIBPAW_COMMENT_COUNT=buf(1)
   LIBPAW_WARNING_COUNT=buf(2)
@@ -616,9 +616,9 @@ subroutine libpaw_leave(mode_paral,exit_status)
  end if
 
  if (present(exit_status)) then
-   call xmpi_abort(exit_status=exit_status)
+   call xpaw_mpi_abort(exit_status=exit_status)
  else
-   call xmpi_abort()
+   call xpaw_mpi_abort()
  end if
 
 end subroutine libpaw_leave
@@ -664,7 +664,7 @@ subroutine libpaw_die(message,file,line)
  if (PRESENT(line)) f90line=line
  if (PRESENT(file)) f90name= libpaw_basename(file)
 
- rank=xmpi_comm_rank(xmpi_world) !Determine my rank inside world communicator
+ rank=xpaw_mpi_comm_rank(xpaw_mpi_world) !Determine my rank inside world communicator
 
  write(lnum,"(i0)") f90line
  write(strank,"(i0)") rank

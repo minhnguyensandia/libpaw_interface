@@ -357,7 +357,7 @@ subroutine paw_ij_init(Paw_ij,cplex,nspinor,nsppol,nspden,pawspnorb,natom,ntypat
  my_natom=size(paw_ij);if (my_natom==0) return
  paral_atom=(present(comm_atom).and.(my_natom/=natom))
  nullify(my_atmtab);if (present(mpi_atmtab)) my_atmtab => mpi_atmtab
- my_comm_atom=xmpi_comm_self;if (present(comm_atom)) my_comm_atom=comm_atom
+ my_comm_atom=xpaw_mpi_comm_self;if (present(comm_atom)) my_comm_atom=comm_atom
  call get_my_atmtab(my_comm_atom,my_atmtab,my_atmtab_allocated,paral_atom,natom,my_natom_ref=my_natom)
 
  do iat=1,my_natom
@@ -754,9 +754,9 @@ character(len=500) :: msg
  npaw_ij_in=size(paw_ij_in);npaw_ij_out=size(paw_ij_cpy)
 
 !Set up parallelism over atoms
- paral_atom=(present(comm_atom));if (paral_atom) paral_atom=(xmpi_comm_size(comm_atom)>1)
+ paral_atom=(present(comm_atom));if (paral_atom) paral_atom=(xpaw_mpi_comm_size(comm_atom)>1)
  nullify(my_atmtab);if (present(mpi_atmtab)) my_atmtab => mpi_atmtab
- my_comm_atom=xmpi_comm_self;if (present(comm_atom)) my_comm_atom=comm_atom
+ my_comm_atom=xpaw_mpi_comm_self;if (present(comm_atom)) my_comm_atom=comm_atom
  my_atmtab_allocated=.false.
 
 !Determine in which case we are (parallelism, ...)
@@ -1000,7 +1000,7 @@ subroutine paw_ij_print(Paw_ij,unit,pawprtvol,pawspnorb,mode_paral,enunit,ipert,
 !Set up parallelism over atoms
  paral_atom=(present(comm_atom).and.my_natom/=size_paw_ij)
  nullify(my_atmtab);if (present(mpi_atmtab)) my_atmtab => mpi_atmtab
- my_comm_atom=xmpi_comm_self;if (present(comm_atom)) my_comm_atom=comm_atom
+ my_comm_atom=xpaw_mpi_comm_self;if (present(comm_atom)) my_comm_atom=comm_atom
  call get_my_atmtab(my_comm_atom,my_atmtab,my_atmtab_allocated,paral_atom,my_natom,my_natom_ref=size_paw_ij)
 
  if (abs(my_prtvol)>=1) then
@@ -1352,8 +1352,8 @@ subroutine paw_ij_gather(paw_ij_in,paw_ij_gathered,master,comm_atom)
 
  npaw_ij_in=size(paw_ij_in);npaw_ij_out=size(paw_ij_gathered)
 
- nproc_atom=xmpi_comm_size(comm_atom)
- me_atom=xmpi_comm_rank(comm_atom)
+ nproc_atom=xpaw_mpi_comm_size(comm_atom)
+ me_atom=xpaw_mpi_comm_rank(comm_atom)
 
 !Special case 1 process
  if (nproc_atom==1) then
@@ -1496,7 +1496,7 @@ subroutine paw_ij_gather(paw_ij_in,paw_ij_gathered,master,comm_atom)
 !Test on sizes
  npaw_ij_in_sum=npaw_ij_in
 
- call xmpi_sum(npaw_ij_in_sum,comm_atom,ierr)
+ call xpaw_mpi_sum(npaw_ij_in_sum,comm_atom,ierr)
   if (master==-1) then
    if (npaw_ij_out/=npaw_ij_in_sum) then
      msg='Wrong sizes sum[npaw_ij_ij]/=npaw_ij_out !'
@@ -1712,7 +1712,7 @@ subroutine paw_ij_gather(paw_ij_in,paw_ij_gathered,master,comm_atom)
  LIBPAW_ALLOCATE(displ_dp ,(nproc_atom))
  LIBPAW_ALLOCATE(count_tot,(2*nproc_atom))
  bufsz(1)=buf_int_size; bufsz(2)=buf_dp_size
- call xmpi_allgather(bufsz,2,count_tot,comm_atom,ierr)
+ call xpaw_mpi_allgather(bufsz,2,count_tot,comm_atom,ierr)
  do ij=1,nproc_atom
    count_int(ij)=count_tot(2*ij-1)
    count_dp (ij)=count_tot(2*ij)
@@ -1733,11 +1733,11 @@ subroutine paw_ij_gather(paw_ij_in,paw_ij_gathered,master,comm_atom)
    LIBPAW_ALLOCATE(buf_dp_all ,(0))
  end if
  if (master==-1) then
-   call xmpi_allgatherv(buf_int,buf_int_size,buf_int_all,count_int,displ_int,comm_atom,ierr)
-   call xmpi_allgatherv(buf_dp ,buf_dp_size ,buf_dp_all ,count_dp ,displ_dp ,comm_atom,ierr)
+   call xpaw_mpi_allgatherv(buf_int,buf_int_size,buf_int_all,count_int,displ_int,comm_atom,ierr)
+   call xpaw_mpi_allgatherv(buf_dp ,buf_dp_size ,buf_dp_all ,count_dp ,displ_dp ,comm_atom,ierr)
  else
-   call xmpi_gatherv(buf_int,buf_int_size,buf_int_all,count_int,displ_int,master,comm_atom,ierr)
-   call xmpi_gatherv(buf_dp ,buf_dp_size ,buf_dp_all ,count_dp ,displ_dp ,master,comm_atom,ierr)
+   call xpaw_mpi_gatherv(buf_int,buf_int_size,buf_int_all,count_int,displ_int,master,comm_atom,ierr)
+   call xpaw_mpi_gatherv(buf_dp ,buf_dp_size ,buf_dp_all ,count_dp ,displ_dp ,master,comm_atom,ierr)
  end if
  LIBPAW_DEALLOCATE(count_int)
  LIBPAW_DEALLOCATE(displ_int)
@@ -2034,7 +2034,7 @@ subroutine paw_ij_redistribute(paw_ij,mpi_comm_in,mpi_comm_out,&
  end if
 
 !Special sequential case
- if (mpi_comm_in==xmpi_comm_self.and.mpi_comm_out==xmpi_comm_self) then
+ if (mpi_comm_in==xpaw_mpi_comm_self.and.mpi_comm_out==xpaw_mpi_comm_self) then
    if ((.not.in_place).and.(my_natom_in>0)) then
      LIBPAW_DATATYPE_ALLOCATE(paw_ij_out,(my_natom_in))
      call paw_ij_nullify(paw_ij_out)
@@ -2048,7 +2048,7 @@ subroutine paw_ij_redistribute(paw_ij,mpi_comm_in,mpi_comm_out,&
    natom_tot=natom
  else
    natom_tot=my_natom_in
-   call xmpi_sum(natom_tot,mpi_comm_in,ierr)
+   call xpaw_mpi_sum(natom_tot,mpi_comm_in,ierr)
  end if
 
 !Select input distribution
@@ -2118,11 +2118,11 @@ subroutine paw_ij_redistribute(paw_ij,mpi_comm_in,mpi_comm_out,&
       paw_ij_out1=>paw_ij_out
    end if
 
-   nproc_in=xmpi_comm_size(mpi_comm_in)
-   nproc_out=xmpi_comm_size(mpi_comm_out)
+   nproc_in=xpaw_mpi_comm_size(mpi_comm_in)
+   nproc_out=xpaw_mpi_comm_size(mpi_comm_out)
    if (nproc_in<=nproc_out) mpi_comm_exch=mpi_comm_out
    if (nproc_in>nproc_out) mpi_comm_exch=mpi_comm_in
-   me_exch=xmpi_comm_rank(mpi_comm_exch)
+   me_exch=xpaw_mpi_comm_rank(mpi_comm_exch)
 
 
 !  Dimension put to the maximum to send
@@ -2190,13 +2190,13 @@ subroutine paw_ij_redistribute(paw_ij,mpi_comm_in,mpi_comm_out,&
            buf_dps=>tab_buf_dp(imsg_current)%value
            my_tag=200
            ireq=ireq+1
-           call xmpi_isend(buf_size,iproc_rcv,my_tag,mpi_comm_exch,request(ireq),ierr)
+           call xpaw_mpi_isend(buf_size,iproc_rcv,my_tag,mpi_comm_exch,request(ireq),ierr)
            my_tag=201
            ireq=ireq+1
-           call xmpi_isend(buf_ints,iproc_rcv,my_tag,mpi_comm_exch,request(ireq),ierr)
+           call xpaw_mpi_isend(buf_ints,iproc_rcv,my_tag,mpi_comm_exch,request(ireq),ierr)
            my_tag=202
            ireq=ireq+1
-           call xmpi_isend(buf_dps,iproc_rcv,my_tag,mpi_comm_exch,request(ireq),ierr)
+           call xpaw_mpi_isend(buf_dps,iproc_rcv,my_tag,mpi_comm_exch,request(ireq),ierr)
            nbsendreq=ireq
            nbsent=0
          end if
@@ -2230,21 +2230,21 @@ subroutine paw_ij_redistribute(paw_ij,mpi_comm_in,mpi_comm_out,&
          iproc_send=From(i1)
          flag=.false.
          my_tag=200
-         call xmpi_iprobe(iproc_send,my_tag,mpi_comm_exch,flag,ierr)
+         call xpaw_mpi_iprobe(iproc_send,my_tag,mpi_comm_exch,flag,ierr)
          if (flag) then
            msg_pick(i1)=.true.
-           call xmpi_irecv(buf_size,iproc_send,my_tag,mpi_comm_exch,request1(1),ierr)
-           call xmpi_wait(request1(1),ierr)
+           call xpaw_mpi_irecv(buf_size,iproc_send,my_tag,mpi_comm_exch,request1(1),ierr)
+           call xpaw_mpi_wait(request1(1),ierr)
            nb_int=buf_size(1)
            nb_dp=buf_size(2)
            npaw_ij_sent=buf_size(3)
            LIBPAW_ALLOCATE(buf_int1,(nb_int))
            LIBPAW_ALLOCATE(buf_dp1,(nb_dp))
            my_tag=201
-           call xmpi_irecv(buf_int1,iproc_send,my_tag,mpi_comm_exch,request1(2),ierr)
+           call xpaw_mpi_irecv(buf_int1,iproc_send,my_tag,mpi_comm_exch,request1(2),ierr)
            my_tag=202
-           call xmpi_irecv(buf_dp1,iproc_send,my_tag,mpi_comm_exch,request1(3),ierr)
-           call xmpi_waitall(request1(2:3),ierr)
+           call xpaw_mpi_irecv(buf_dp1,iproc_send,my_tag,mpi_comm_exch,request1(3),ierr)
+           call xpaw_mpi_waitall(request1(2:3),ierr)
            call paw_ij_isendreceive_getbuffer(paw_ij_out1,npaw_ij_sent,atm_indx_out,buf_int1,buf_dp1)
            nbmsg_incoming=nbmsg_incoming-1
            LIBPAW_DEALLOCATE(buf_int1)
@@ -2266,7 +2266,7 @@ subroutine paw_ij_redistribute(paw_ij,mpi_comm_in,mpi_comm_out,&
 
 !  Wait for deallocating arrays that all sending operations has been realized
    if (nbsendreq > 0) then
-     call xmpi_waitall(request(1:nbsendreq),ierr)
+     call xpaw_mpi_waitall(request(1:nbsendreq),ierr)
    end if
 
 !  Deallocate buffers

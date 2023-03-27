@@ -1182,7 +1182,7 @@ end subroutine pawcprj_output
      msg='mpicomm must be present when proc_distrb is present (pawcprj_get)!'
      LIBPAW_BUG(msg)
    end if
-   me=xmpi_comm_rank(mpicomm)
+   me=xpaw_mpi_comm_rank(mpicomm)
  end if
 
  if (mkmem==0) then
@@ -1387,14 +1387,14 @@ end subroutine pawcprj_get
  to_be_gathered_=.false.;if (present(to_be_gathered)) to_be_gathered_=to_be_gathered
 
 !MPI data
- nproc_band=1;if (present(mpi_comm_band)) nproc_band=xmpi_comm_size(mpi_comm_band)
+ nproc_band=1;if (present(mpi_comm_band)) nproc_band=xpaw_mpi_comm_size(mpi_comm_band)
  has_distrb=present(proc_distrb)
  if (has_distrb) then
    if (.not.present(mpicomm)) then
      msg='mpicomm must be present when proc_distrb is present (pawcprj_put)!'
      LIBPAW_BUG(msg)
    end if
-   me=xmpi_comm_rank(mpicomm)
+   me=xpaw_mpi_comm_rank(mpicomm)
  end if
 
  if (nproc_band==1.or.(.not.to_be_gathered_)) then
@@ -1495,7 +1495,7 @@ end subroutine pawcprj_get
          end if
        end do !iatom
      end do !ispinor
-     call xmpi_allgather(buffer1,lmndim,buffer2,mpi_comm_band,ierr)
+     call xpaw_mpi_allgather(buffer1,lmndim,buffer2,mpi_comm_band,ierr)
      jj=1
      do ii=1,nproc_band
        do ispinor=1,nspinor
@@ -1679,7 +1679,7 @@ subroutine pawcprj_mpi_exch(natom,n2dim,nlmn,ncpgr,Cprj_send,Cprj_recv,sender,re
    return
  end if
 
- rank = xmpi_comm_rank(spaceComm)
+ rank = xpaw_mpi_comm_rank(spaceComm)
 
  nn=size(nlmn,dim=1)
  if (rank==sender) then
@@ -1719,9 +1719,9 @@ subroutine pawcprj_mpi_exch(natom,n2dim,nlmn,ncpgr,Cprj_send,Cprj_recv,sender,re
  end if
 
 !=== Transmit data ===
- call xmpi_exch(buffer_cp,2*ntotcp,sender,buffer_cp,receiver,spaceComm,2*mtag,ierr)
+ call xpaw_mpi_exch(buffer_cp,2*ntotcp,sender,buffer_cp,receiver,spaceComm,2*mtag,ierr)
  if (ncpgr/=0) then
-   call xmpi_exch(buffer_cpgr,2*ncpgr*ntotcp,sender,buffer_cpgr,receiver,spaceComm,2*mtag+1,ierr)
+   call xpaw_mpi_exch(buffer_cpgr,2*ncpgr*ntotcp,sender,buffer_cpgr,receiver,spaceComm,2*mtag+1,ierr)
  end if
 
 !=== UnPack buffers into Cprj_recv ===
@@ -1836,10 +1836,10 @@ subroutine pawcprj_mpi_send(natom,n2dim,nlmn,ncpgr,cprj_out,receiver,spaceComm,i
 
 !=== Transmit data ===
  tag = 2*ntotcp
- call xmpi_send(buffer_cp,receiver,tag,spaceComm,ierr)
+ call xpaw_mpi_send(buffer_cp,receiver,tag,spaceComm,ierr)
  if (ncpgr/=0) then
    tag=tag*ncpgr
-   call xmpi_send(buffer_cpgr,receiver,tag,spaceComm,ierr)
+   call xpaw_mpi_send(buffer_cpgr,receiver,tag,spaceComm,ierr)
  end if
 
 !=== Clean up ===
@@ -1931,10 +1931,10 @@ subroutine pawcprj_mpi_recv(natom,n2dim,nlmn,ncpgr,cprj_in,sender,spaceComm,ierr
 
 !=== Receive data ===
  tag = 2*ntotcp
- call xmpi_recv(buffer_cp,sender,tag,spaceComm,ierr)
+ call xpaw_mpi_recv(buffer_cp,sender,tag,spaceComm,ierr)
  if (ncpgr/=0) then
    tag=tag*ncpgr
-   call xmpi_recv(buffer_cpgr,sender,tag,spaceComm,ierr)
+   call xpaw_mpi_recv(buffer_cpgr,sender,tag,spaceComm,ierr)
  end if
 
 !=== UnPack buffers into cprj_in ===
@@ -1994,7 +1994,7 @@ subroutine pawcprj_mpi_sum(cprj,spaceComm,ierr)
 
 ! *************************************************************************
 
- if (xmpi_comm_size(spaceComm)<2) return
+ if (xpaw_mpi_comm_size(spaceComm)<2) return
 
  n1dim=size(cprj,1);n2dim=size(cprj,2)
  nlmn=sum(cprj(:,:)%nlmn)
@@ -2023,7 +2023,7 @@ subroutine pawcprj_mpi_sum(cprj,spaceComm,ierr)
      end do
    end do
 
-   call xmpi_sum(buffer_cprj,spaceComm,ierr)
+   call xpaw_mpi_sum(buffer_cprj,spaceComm,ierr)
 
    ipck=0
    do jj=n2dim1,n2dim2
@@ -2147,7 +2147,7 @@ subroutine pawcprj_mpi_allgather(cprj_loc,cprj_gat,natom,n2dim,n2std,nlmn,ncpgr,
  end do
 
 !=== allgather data ===
- call xmpi_allgather(buffer_cpgr,2*(ncpgr+1)*ntotcp,buffer_cpgr_all,spaceComm,ierr)
+ call xpaw_mpi_allgather(buffer_cpgr,2*(ncpgr+1)*ntotcp,buffer_cpgr_all,spaceComm,ierr)
 
 !=== unpack gathered data into cprj(natom,n2dim*nproc)
 !=== second dimension is rank-ordered if rank_ordered_=true
@@ -2223,10 +2223,10 @@ subroutine pawcprj_bcast(Cprj,natom,n2dim,nlmn,ncpgr,master,spaceComm,ierr)
 ! *************************************************************************
 
  ierr=0
- nprocs = xmpi_comm_size(spaceComm)
+ nprocs = xpaw_mpi_comm_size(spaceComm)
  if (nprocs==1) return
 
- rank = xmpi_comm_rank(spaceComm)
+ rank = xpaw_mpi_comm_rank(spaceComm)
 
  nn=size(nlmn,dim=1)
  n1dim=size(Cprj,dim=1)
@@ -2257,9 +2257,9 @@ subroutine pawcprj_bcast(Cprj,natom,n2dim,nlmn,ncpgr,master,spaceComm,ierr)
  end if
 
 !=== Transmit data ===
- call xmpi_bcast(buffer_cp,master,spaceComm,ierr)
+ call xpaw_mpi_bcast(buffer_cp,master,spaceComm,ierr)
  if (ncpgr/=0) then
-   call xmpi_bcast(buffer_cpgr,master,spaceComm,ierr)
+   call xpaw_mpi_bcast(buffer_cpgr,master,spaceComm,ierr)
  end if
 
 !=== UnPack the received buffer ===
@@ -2342,8 +2342,8 @@ end subroutine pawcprj_bcast
 ! *************************************************************************
 
 !MPI data
- me = xmpi_comm_rank(spaceComm)
- np = xmpi_comm_size(spaceComm)
+ me = xpaw_mpi_comm_rank(spaceComm)
+ np = xpaw_mpi_comm_size(spaceComm)
 
 !Nothing to do if nprocs=1
  if (np==1) then
@@ -2383,7 +2383,7 @@ end subroutine pawcprj_bcast
      iatom=(iblock_atom-1)*np+1+me
      if (iatom<=natom) cprjsz_atom(iatom)=2*cprjin(iblock_atom,1)%nlmn*(1+cprjin(iblock_atom,1)%ncpgr)
    end do
-   call xmpi_sum(cprjsz_atom,spaceComm,ierr)
+   call xpaw_mpi_sum(cprjsz_atom,spaceComm,ierr)
  end if
  do iblock_atom=1,nba
    iashft=(iblock_atom-1)*np
@@ -2482,7 +2482,7 @@ end subroutine pawcprj_bcast
      end if
 
 !    Main call to MPI_ALLTOALL
-     call xmpi_alltoallv(sbuf,scount,sdispl,rbuf,rcount,rdispl,spaceComm,ierr)
+     call xpaw_mpi_alltoallv(sbuf,scount,sdispl,rbuf,rcount,rdispl,spaceComm,ierr)
 
 !    Retrieving of output cprj for received buffer
      buf_indx=0
@@ -2615,7 +2615,7 @@ end subroutine pawcprj_bcast
    end do
  end do
 
- call xmpi_allgather(buffer1,lmndim,buffer2,spaceComm_spin,ierr)
+ call xpaw_mpi_allgather(buffer1,lmndim,buffer2,spaceComm_spin,ierr)
 
  jj=1
  do ispinor=1,nspinortot
@@ -2792,7 +2792,7 @@ function paw_overlap(cprj1,cprj2,typat,pawtab,spinor_comm) result(onsite)
  end do
 
  if (present(spinor_comm)) then
-   call xmpi_sum(onsite,spinor_comm,isp)
+   call xpaw_mpi_sum(onsite,spinor_comm,isp)
  end if
 
 end function paw_overlap

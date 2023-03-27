@@ -663,7 +663,7 @@ subroutine pawrad_bcast(pawrad,comm_mpi)
 
 !*************************************************************************
 
- me=xmpi_comm_rank(comm_mpi)
+ me=xpaw_mpi_comm_rank(comm_mpi)
 
 !Initializations
  if_rad=0; if_radfact=0; if_simfact=0
@@ -706,7 +706,7 @@ subroutine pawrad_bcast(pawrad,comm_mpi)
    list_int(5)=if_radfact
    list_int(6)=if_simfact
  end if
- call xmpi_bcast(list_int,0,comm_mpi,ierr)
+ call xpaw_mpi_bcast(list_int,0,comm_mpi,ierr)
  if(me/=0) then
    pawrad%int_meshsz =list_int(1)
    pawrad%mesh_size =list_int(2)
@@ -742,7 +742,7 @@ subroutine pawrad_bcast(pawrad,comm_mpi)
      indx=indx+isz1
    end if
  end if
- call xmpi_bcast(list_dpr,0,comm_mpi,ierr)
+ call xpaw_mpi_bcast(list_dpr,0,comm_mpi,ierr)
  if(me/=0) then
    pawrad%lstep=list_dpr(1)
    pawrad%rmax=list_dpr(2)

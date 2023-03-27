@@ -4332,7 +4332,7 @@ subroutine pawpsp_wvl(filpsp,pawrad, pawtab,usewvl, wvl_ngauss, comm_mpi)
 
 ! *************************************************************************
 
- me=0; if (present(comm_mpi))me=xmpi_comm_rank(comm_mpi)
+ me=0; if (present(comm_mpi))me=xpaw_mpi_comm_rank(comm_mpi)
 
 !If usewvl flag is on, we must have the pawtab%wvl pointer allocated
  if (usewvl==1.and.pawtab%has_wvl==0) then
@@ -4706,7 +4706,7 @@ subroutine pawpsp_bcast(comm_mpi,epsatm,ffspl,pawrad,pawtab,vlspl,xcccrc)
 
 !*************************************************************************
 
- me=xmpi_comm_rank(comm_mpi)
+ me=xpaw_mpi_comm_rank(comm_mpi)
 
 !Broadcast pawrad
  call pawrad_bcast(pawrad,comm_mpi)
@@ -4723,7 +4723,7 @@ subroutine pawpsp_bcast(comm_mpi,epsatm,ffspl,pawrad,pawtab,vlspl,xcccrc)
    siz2_ffspl=size(ffspl,2); list_int(4)=siz2_ffspl
    siz3_ffspl=size(ffspl,3); list_int(5)=siz3_ffspl
  end if
- call xmpi_bcast(list_int,0,comm_mpi,ierr)
+ call xpaw_mpi_bcast(list_int,0,comm_mpi,ierr)
  if (me/=0) then
    siz1_vlspl=list_int(1)
    siz2_vlspl=list_int(2)
@@ -4745,7 +4745,7 @@ subroutine pawpsp_bcast(comm_mpi,epsatm,ffspl,pawrad,pawtab,vlspl,xcccrc)
    list_dpr(ii:ii+siz_vlspl-1)=reshape(vlspl,(/siz_vlspl/)) ;ii=ii+siz_vlspl
    list_dpr(ii:ii+siz_ffspl-1)=reshape(ffspl,(/siz_ffspl/)) ;ii=ii+siz_ffspl
  end if
- call xmpi_bcast(list_dpr,0,comm_mpi,ierr)
+ call xpaw_mpi_bcast(list_dpr,0,comm_mpi,ierr)
  if (me/=0) then
    ii=1
    epsatm=list_dpr(ii) ;ii=ii+1
@@ -4864,7 +4864,7 @@ subroutine pawpsp_main( &
 
  my_xc_denpos=xc_denpos_default;if (present(xc_denpos)) my_xc_denpos=xc_denpos
  pawtab%usexcnhat=usexcnhat
- me=0;if (present(comm_mpi))me=xmpi_comm_rank(comm_mpi)
+ me=0;if (present(comm_mpi))me=xpaw_mpi_comm_rank(comm_mpi)
 
  has_wvl=0; if (usewvl==1.or.icoulomb/=0) has_wvl=1
  has_tproj=0; if (usewvl==1) has_tproj=1
@@ -4937,7 +4937,7 @@ subroutine pawpsp_main( &
 
 !Communicate PAW objects
  if(present(comm_mpi)) then
-   if(xmpi_comm_size(comm_mpi)>1) then
+   if(xpaw_mpi_comm_size(comm_mpi)>1) then
      call pawpsp_bcast(comm_mpi,epsatm,ffspl,pawrad,pawtab,vlspl,xcccrc)
    end if
  end if
