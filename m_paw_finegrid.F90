@@ -1121,10 +1121,27 @@ subroutine pawrfgd_fft(ifftsph,gmet,n1,n2,n3,nfgd,rcut,rfgd,rprimd,ucvol,xred, &
  nfgd=0
 
 !Loop over FFT points
+
+!This part needs to be modified if transporting LibPAW to
+!another software where the real space grid points are not
+!distributed along z direction (which is rare I presume)
+
+!The way ABINIT distributes the real-space grid points
+!is by a block distribution of planes in z direction
+!To see this, note in 65_paw/m_paw_nhat.F90, 'fftn3_distrib'
+!makes a copy from 'tab_fftdp3dg_distrib'
+!which is defined in src/44_abitypes_defs/m_distribfft.F90
+!the array is passed in here as 'fft_distrib'
+
+!Basically, fft_distrib and fft_index both have the size
+!of n3, namely total number of planes in z direction
+!fft_distrib stores the rank on which each plane is located
+!while fft_index gives the local index of each plane
+
  do i3=n3a,n3b
    iz=mod(i3+ishift*n3,n3)
-   if (fft_distrib_(iz+1)==me_fft_) then
-     izloc=fft_index_(iz+1) - 1
+   if (fft_distrib_(iz+1)==me_fft_) then !notice here
+     izloc=fft_index_(iz+1) - 1 !notice here
      difz=dble(i3)/dble(n3)-xred(3)
      do i2=n2a,n2b
        iy=mod(i2+ishift*n2,n2)
@@ -1141,7 +1158,7 @@ subroutine pawrfgd_fft(ifftsph,gmet,n1,n2,n3,nfgd,rcut,rfgd,rprimd,ucvol,xred, &
 
 !        Select matching points
          if (r2 <= r2cut) then
-           ifft_local=1+ix+n1*(iy+n2*izloc)
+           ifft_local=1+ix+n1*(iy+n2*izloc) !notice here
            if (ifft_local>0) then
              nfgd=nfgd+1
              if (nfgd>ncmax) then

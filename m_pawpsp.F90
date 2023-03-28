@@ -4806,6 +4806,13 @@ end subroutine pawpsp_bcast
 !!
 !!
 !! SOURCE
+! The first part of initialization : reading info from xml
+! and allocate data structures / perform some simple calculations
+! Note here psxml is passed as input
+! To prepare psxml, we first need to call rdpawpsxml
+! and the whole initialization process is something like this:
+! rdpawpsxml -> pawtab_set_flags -> pawpsp_read_header_xml
+! -> pawpsp_read_pawheader -> pawpsp_17in
 
 subroutine pawpsp_main( &
 & pawrad,pawtab,&
