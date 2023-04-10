@@ -4617,14 +4617,14 @@ subroutine pawpsp_read_pawheader(basis_size,lmax,lmn_size,&
 ! *************************************************************************
 
 !All of this was moved from pawpsxml2ab,
-!basis_size
+!basis_size, namely, number of valence states
  basis_size=psxml%valence_states%nval
 !mesh_size
  do il=1,psxml%ngrid
    if(psxml%radial_grid(il)%id==psxml%idgrid) &
 &   mesh_size=psxml%radial_grid(il)%iend-psxml%radial_grid(il)%istart+1
  end do
-!lmn_size:
+!lmn_size, namely, total number of projectors
  lmn_size=0
  do il=1,psxml%valence_states%nval
    lmn_size=lmn_size+2*psxml%valence_states%state(il)%ll+1
