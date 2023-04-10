@@ -169,6 +169,9 @@
 #  define LIBPAW_BOUND2_ALLOCATE(ARR,BND1,BND2) allocate(ARR(BND1,BND2))
 #  define BOUNDS(LBND,UBND) LBND : UBND
 
+#define ABI_ERROR(msg) call libpaw_msg_hndl(msg,"ERROR","PERS",__FILE__,__LINE__)
+#define ABI_BUG(msg) call libpaw_msg_hndl(msg,"BUG"    ,"PERS")
+
 /* libXC support */
 #  undef LIBPAW_HAVE_LIBXC
 

@@ -39,6 +39,7 @@ module m_libpaw_defs
  real(dp), parameter :: seven=7._dp
  real(dp), parameter :: eight=8._dp
  real(dp), parameter :: nine =9._dp
+ real(dp), parameter :: ten  =10._dp
  real(dp), parameter :: half=one/two
  real(dp), parameter :: third=one/three
  real(dp), parameter :: two_thirds=two/three
