@@ -35,6 +35,10 @@ module m_pawxc
  use m_xc_noncoll,  only : rotate_mag,rotate_back_mag,rotate_back_mag_dfpt
 #endif
 
+#ifdef HAVE_XC_ABINIT
+ use m_drivexc,     only : drivexc,size_dvxc,xcmult,mkdenpos
+#endif
+
  use m_libpaw_libxc
 
  use m_pawang,      only : pawang_type
@@ -5682,7 +5686,11 @@ end subroutine pawxcmpositron
 
 
 !One could add here a section for other codes (i.e. BigDFT, ...)
-#if defined HAVE_LIBPAW_ABINIT
+!I have replaced the original directive by a new one
+!because I only need to use the XC subroutines from abinit but not others
+
+!#if defined HAVE_LIBPAW_ABINIT
+#if defined HAVE_XC_ABINIT
  call pawxc_drivexc_abinit()
 #elif defined LIBPAW_HAVE_LIBXC
  call pawxc_drivexc_libxc()
@@ -5698,7 +5706,8 @@ end subroutine pawxcmpositron
 contains
 !!***
 
-#if defined HAVE_LIBPAW_ABINIT
+!#if defined HAVE_LIBPAW_ABINIT
+#if defined HAVE_XC_ABINIT
 !!****f* m_pawxc/pawxc_drivexc_abinit
 !! NAME
 !!  pawxc_drivexc_abinit
