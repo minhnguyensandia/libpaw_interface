@@ -1,6 +1,7 @@
 program main
     use m_pawpsp
     use m_pawxmlps
+    use m_paw_init
     use m_kg
     use libpaw_mod
 
@@ -8,10 +9,6 @@ program main
 
 
     integer :: stat
-
-    !In practice, this part will be obtained from
-    !the program calling libpaw_interface
-    real*8  :: ecut(1), ecutpaw(1) !a coarse grid, and a fine grid for PAW
 
     write(*,*) 'Test code for setting up libpaw'
     open(unit=10,file='pawfiles')
@@ -25,9 +22,10 @@ program main
     call scan_input_int('ngfftdg',ngfftdg,3)
     
     ! (Temporary) set xc functional type
-    ixc = 7
+    ixc = 7 ! corresponds to PW92 LDA functional
     xclevel = 1
     hyb_mixing = 0.0
+    hyb_range_fock = 0.0
 
     ! Process energy cutoff
     call getcut(ecut(1),gmet,gsqcut,iboxcut,ngfft)
@@ -59,16 +57,20 @@ program main
             &   pawpsp_header%pawver, pawsetup,&
             &   pawpsp_header%rpaw, pawpsp_header%rshp, pawpsp_header%shape_type)
 
-
         ! Process onsite information
         call pawtab_set_flags(pawtab,has_tvale=1,has_vhnzc=1,has_vhtnzc=1)
         call pawpsp_17in(epsatm, ffspl, icoulomb, ipsp, hyb_mixing, ixc, lmax,&
                 &       lnmax, pawpsp_header%mesh_size, mqgrid, mqgrid, pawpsp_header,&
-                &       pawrad, pawtab, xcdev, qgrid_ff, qgrid_vl, usewvl, usexcnhat,&
+                &       pawrad(1), pawtab(1), xcdev, qgrid_ff, qgrid_vl, usewvl, usexcnhat,&
                 &       vlspl(:,:), xcccrc, xclevel, denpos, zion, znucl)
         call paw_setup_free(pawsetup)
         call paw_setup_free(paw_setuploc)
+
     !enddo
+
+    mpsang = lmax + 1
+    call pawinit(effmass_free, gnt_option,gsqcut_eff,hyb_range_fock,lcutdens,lmix,mpsang,nphi,nsym,ntheta,&
+        &     pawang,pawrad,pawspnorb,pawtab,xcdev,xclevel,usepotzero)
     
     close(10)
     close(11)
