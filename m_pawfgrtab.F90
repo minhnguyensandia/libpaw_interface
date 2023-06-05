@@ -174,6 +174,9 @@ CONTAINS
 !!
 !! SOURCE
 
+!Actually parallelization of atoms is not used for PAW.
+!See 'initmpi_atom' in src/51_manage_mpi/m_mpinfo.F90 of ABINIT
+
 subroutine pawfgrtab_init(Pawfgrtab,cplex,l_size_atm,nspden,typat,&
 &                         mpi_atmtab,comm_atom) ! optional arguments (parallelism)
 

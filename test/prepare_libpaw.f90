@@ -3,10 +3,10 @@ program main
     use m_pawxmlps
     use m_paw_init
     use m_kg
+    use m_paw_occupancies, only : initrhoij
     use libpaw_mod
 
     implicit none
-
 
     integer :: stat
 
@@ -66,12 +66,35 @@ program main
         call paw_setup_free(pawsetup)
         call paw_setup_free(paw_setuploc)
 
+        !write(13,*) 'dij0',pawtab(1)%dij0
+
     !enddo
 
     mpsang = lmax + 1
     call pawinit(effmass_free, gnt_option,gsqcut_eff,hyb_range_fock,lcutdens,lmix,mpsang,nphi,nsym,ntheta,&
         &     pawang,pawrad,pawspnorb,pawtab,xcdev,xclevel,usepotzero)
+    !write(13,*) 'eijkl',pawtab(1)%eijkl
+
+    !See m_scfcv_core.f90, lines 669 and forth
+
+    l_size_atm(1) = pawtab(1)%l_size
+    typat(1) = 1 !typat stores the atomic number, I'm using H as test case so set to 1
+    call pawfgrtab_init(pawfgrtab, cplex, l_size_atm, nspden, typat)
+
+    call paw_an_nullify(paw_an)
+    call paw_ij_nullify(paw_ij)
+
+    call paw_an_init(paw_an, natom, ntypat, 0, 0, nspden, cplex, &
+        & xcdev, typat, pawang, pawtab, has_vxc = 1, has_vxc_ex = 1)
+    call paw_ij_init(paw_ij, cplex, nspinor, nsppol, nspden, pawspnorb, &
+        & natom, ntypat, typat, pawtab, &
+        & has_dij = 1, has_dijhartree = 1, has_dijso = 1, has_pawu_occ = 1, has_exexch_pot = 1)
     
+    call initrhoij(cplex, lexexch, lpawu, natom, natom, nspden, nspinor, &
+        & nsppol, ntypat, pawrhoij, pawspnorb, pawtab, 1, spinat, typat)
+
+    
+
     close(10)
     close(11)
 contains
