@@ -9,18 +9,33 @@ program main
     implicit none
 
     integer :: stat
+    integer :: n3, i3
+    integer :: it, ia
+    integer, allocatable :: fftn3_distrib(:), ffti3_local(:)
 
     write(*,*) 'Test code for setting up libpaw'
     open(unit=10,file='pawfiles')
     open(unit=11,file='input')
 
     ! Read some input variables
-    call scan_input_double('ecut',ecut,1)
-    call scan_input_double('ecutpaw',ecutpaw,1)
+    call scan_input_double_scalar('ecut',ecut)
+    call scan_input_double_scalar('ecutpaw',ecutpaw)
     call scan_input_double('gmet',gmet,9)
     call scan_input_int('ngfft',ngfft,3)
     call scan_input_int('ngfftdg',ngfftdg,3)
+    call scan_input_int_scalar('natom',natom)
+    call scan_input_int_scalar('ntypat',ntypat)
+
+    allocate(typat(natom), znucl(ntypat), nattyp(ntypat), lexexch(ntypat), &
+        & lpawu(ntypat), l_size_atm(natom), xred(3,natom))
+    allocate(pawrad(ntypat), pawtab(ntypat), pawrhoij(natom), paw_ij(natom), &
+        & paw_an(natom), pawfgrtab(natom))
     
+    call scan_input_int('typat',typat,natom)
+    call scan_input_double('xred',xred,3*natom)
+
+    close(11)
+
     ! (Temporary) set xc functional type
     ixc = 7 ! corresponds to PW92 LDA functional
     xclevel = 1
@@ -28,8 +43,8 @@ program main
     hyb_range_fock = 0.0
 
     ! Process energy cutoff
-    call getcut(ecut(1),gmet,gsqcut,iboxcut,ngfft)
-    call getcut(ecutpaw(1),gmet,gsqcutdg,iboxcut,ngfftdg)
+    call getcut(ecut,gmet,gsqcut,iboxcut,ngfft)
+    call getcut(ecutpaw,gmet,gsqcutdg,iboxcut,ngfftdg)
     
     allocate(qgrid_ff(mqgrid),qgrid_vl(mqgrid),stat=stat)
     if(stat/=0) then
@@ -40,17 +55,17 @@ program main
     call generate_qgrid(gsqcut,qgrid_ff,mqgrid)
     call generate_qgrid(gsqcutdg,qgrid_vl,mqgrid)
 
-    allocate(ffspl(mqgrid,2,lnmax), vlspl(mqgrid,2))
+    allocate(ffspl(mqgrid,2,lnmax), vlspl(mqgrid,2,ntypat))
 
-    !do
+    do it = 1, ntypat
         read(10,*,iostat=stat) filename
-        !if(stat/=0) exit
+        if(stat/=0) exit
 
         ! Read paw input files
         call rdpawpsxml(filename, pawsetup)
         call rdpawpsxml(filename, paw_setuploc)
         call pawpsp_read_header_xml(lloc, lmax, pspcod, pspxc,&
-            & pawsetup, r2well, zion, znucl)
+            & pawsetup, r2well, zion, znucl(it))
         call pawpsp_read_pawheader(pawpsp_header%basis_size,&
             &   lmax,pawpsp_header%lmn_size,&
             &   pawpsp_header%l_size, pawpsp_header%mesh_size,&
@@ -61,14 +76,18 @@ program main
         call pawtab_set_flags(pawtab,has_tvale=1,has_vhnzc=1,has_vhtnzc=1)
         call pawpsp_17in(epsatm, ffspl, icoulomb, ipsp, hyb_mixing, ixc, lmax,&
                 &       lnmax, pawpsp_header%mesh_size, mqgrid, mqgrid, pawpsp_header,&
-                &       pawrad(1), pawtab(1), xcdev, qgrid_ff, qgrid_vl, usewvl, usexcnhat,&
-                &       vlspl(:,:), xcccrc, xclevel, denpos, zion, znucl)
+                &       pawrad(it), pawtab(it), xcdev, qgrid_ff, qgrid_vl, usewvl, usexcnhat,&
+                &       vlspl(:,:,it), xcccrc, xclevel, denpos, zion, znucl(it))
         call paw_setup_free(pawsetup)
         call paw_setup_free(paw_setuploc)
 
         !write(13,*) 'dij0',pawtab(1)%dij0
+    enddo
 
-    !enddo
+    do ia = 1, natom
+        it = typat(ia)
+        l_size_atm(ia) = pawtab(it)%l_size
+    enddo
 
     mpsang = lmax + 1
     call pawinit(effmass_free, gnt_option,gsqcut_eff,hyb_range_fock,lcutdens,lmix,mpsang,nphi,nsym,ntheta,&
@@ -76,9 +95,6 @@ program main
     !write(13,*) 'eijkl',pawtab(1)%eijkl
 
     !See m_scfcv_core.f90, lines 669 and forth
-
-    l_size_atm(1) = pawtab(1)%l_size
-    typat(1) = 1 !typat stores the atomic number, I'm using H as test case so set to 1
     call pawfgrtab_init(pawfgrtab, cplex, l_size_atm, nspden, typat)
 
     call paw_an_nullify(paw_an)
@@ -93,7 +109,16 @@ program main
     call initrhoij(cplex, lexexch, lpawu, natom, natom, nspden, nspinor, &
         & nsppol, ntypat, pawrhoij, pawspnorb, pawtab, 1, spinat, typat)
 
+    n3 = ngfftdg(3)
+    allocate(fftn3_distrib(n3), ffti3_local(n3))
+    !This is the case when running serially
+    fftn3_distrib = 1
     
+    do i3 = 1, n3
+        ffti3_local(i3) = i3
+    enddo
+
+    !call nhatgrid()
 
     close(10)
     close(11)
@@ -110,11 +135,33 @@ contains
         endif
     end subroutine
 
+    subroutine scan_input_double_scalar(name_in,value)
+        character(*)      :: name_in
+        character(len=20) :: name
+        real*8            :: value
+
+        read(11,*) name, value
+        if(trim(name)/=trim(name_in)) then
+            write(*,*) 'variable name does not match : ',trim(name),trim(name_in)
+        endif
+    end subroutine
+
     subroutine scan_input_int(name_in,value,n)
         character(*)      :: name_in
         character(len=20) :: name
         integer           :: n
         integer           :: value(n)
+
+        read(11,*) name, value
+        if(trim(name)/=trim(name_in)) then
+            write(*,*) 'variable name does not match : ',trim(name),trim(name_in)
+        endif
+    end subroutine
+
+    subroutine scan_input_int_scalar(name_in,value)
+        character(*)      :: name_in
+        character(len=20) :: name
+        integer           :: value
 
         read(11,*) name, value
         if(trim(name)/=trim(name_in)) then
