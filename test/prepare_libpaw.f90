@@ -1,4 +1,4 @@
-program main
+subroutine prepare_libpaw
     use m_pawpsp
     use m_pawxmlps
     use m_paw_init
@@ -14,7 +14,7 @@ program main
     integer :: it, ia
     integer, allocatable :: fftn3_distrib(:), ffti3_local(:)
 
-    write(*,*) 'Test code for setting up libpaw'
+    write(*,*) '1. Setting up libpaw'
     open(unit=10,file='pawfiles')
     open(unit=11,file='input')
 
@@ -131,7 +131,7 @@ program main
     !do ia = 1, natom
     !    write(16,*) pawfgrtab(ia)%gylm
     !    write(16,*)
-    1enddo
+    !enddo
 
     close(10)
     close(11)
@@ -195,4 +195,4 @@ contains
             qgrid(iq) = (iq-1)*dq
         enddo
     end subroutine
-end program
+end subroutine
