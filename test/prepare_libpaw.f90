@@ -3,7 +3,8 @@ program main
     use m_pawxmlps
     use m_paw_init
     use m_kg
-    use m_paw_occupancies, only : initrhoij
+    use m_paw_occupancies
+    use m_paw_nhat
     use libpaw_mod
 
     implicit none
@@ -21,6 +22,8 @@ program main
     call scan_input_double_scalar('ecut',ecut)
     call scan_input_double_scalar('ecutpaw',ecutpaw)
     call scan_input_double('gmet',gmet,9)
+    call scan_input_double('rprimd',rprimd,9)
+    call scan_input_double_scalar('ucvol',ucvol)
     call scan_input_int('ngfft',ngfft,3)
     call scan_input_int('ngfftdg',ngfftdg,3)
     call scan_input_int_scalar('natom',natom)
@@ -30,17 +33,19 @@ program main
         & lpawu(ntypat), l_size_atm(natom), xred(3,natom))
     allocate(pawrad(ntypat), pawtab(ntypat), pawrhoij(natom), paw_ij(natom), &
         & paw_an(natom), pawfgrtab(natom))
+    allocate(atindx(natom),atindx1(natom))
     
     call scan_input_int('typat',typat,natom)
     call scan_input_double('xred',xred,3*natom)
-
-    close(11)
 
     ! (Temporary) set xc functional type
     ixc = 7 ! corresponds to PW92 LDA functional
     xclevel = 1
     hyb_mixing = 0.0
     hyb_range_fock = 0.0
+
+    ! Process atomic information
+    call map_atom_index()
 
     ! Process energy cutoff
     call getcut(ecut,gmet,gsqcut,iboxcut,ngfft)
@@ -112,13 +117,21 @@ program main
     n3 = ngfftdg(3)
     allocate(fftn3_distrib(n3), ffti3_local(n3))
     !This is the case when running serially
-    fftn3_distrib = 1
+    fftn3_distrib = 0
     
     do i3 = 1, n3
         ffti3_local(i3) = i3
     enddo
 
-    !call nhatgrid()
+    call nhatgrid(atindx1, gmet, natom, natom, nattyp, ngfftdg, ntypat, &
+        & 0, 1, 0, 0, 0, & !optcut, optgr0, optgr1, optgr2, optrad
+        & pawfgrtab, pawtab, rprimd, typat, ucvol, xred, &
+        & n3, fftn3_distrib, ffti3_local)
+
+    !do ia = 1, natom
+    !    write(16,*) pawfgrtab(ia)%gylm
+    !    write(16,*)
+    1enddo
 
     close(10)
     close(11)

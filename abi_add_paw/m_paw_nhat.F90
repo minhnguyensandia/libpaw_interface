@@ -65,7 +65,7 @@ CONTAINS  !=====================================================================
 !!  my_natom=number of atoms treated by current processor
 !!  natom=total number of atoms in cell
 !!  nattyp(ntypat)= # atoms of each type.
-!!  ngfft(18)=contain all needed information about 3D FFT, see ~abinit/doc/variables/vargs.htm#ngfft
+!!  ngfft(3)=contain all needed information about 3D FFT, see ~abinit/doc/variables/vargs.htm#ngfft
 !!  ntypat=number of types of atoms in unit cell
 !!  optcut= option for the cut-off radius of spheres:
 !!          if optcut=0, cut-off radius=pawtab%rshp=cut-off radius of compensation charge
@@ -121,7 +121,7 @@ subroutine nhatgrid(atindx1,gmet,my_natom,natom,nattyp,ngfft,ntypat,&
  integer,intent(in) :: n3_in
  integer,intent(in) :: fftn3_distrib(n3_in), ffti3_local(n3_in)
 !arrays
- integer,intent(in) :: ngfft(18),typat(natom)
+ integer,intent(in) :: ngfft(3),typat(natom)
  integer,intent(in),target :: atindx1(natom),nattyp(ntypat)
  integer,optional,target,intent(in) :: mpi_atmtab(:)
  real(dp),intent(in) :: gmet(3,3),rprimd(3,3),xred(3,natom)
