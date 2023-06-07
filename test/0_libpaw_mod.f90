@@ -14,6 +14,7 @@ module libpaw_mod
       real*8  :: ecut, ecutpaw !a coarse grid, and a fine grid for PAW
       real*8  :: gmet(3,3) !reciprocal space lattice vectors
       real*8  :: rprimd(3,3) !lattice vectors
+      real*8  :: gprimd(3,3) !reciprocal space lattice vectors
       real*8  :: ucvol !volume of unit cell
       integer :: nspden = 1, nsppol = 1 !number of spin components for density and wavefunctions
       !for normal nspin = 1,2 calculations, nsppol is set to be same as nspden
