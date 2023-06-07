@@ -23,6 +23,7 @@ subroutine prepare_libpaw
     call scan_input_double_scalar('ecutpaw',ecutpaw)
     call scan_input_double('gmet',gmet,9)
     call scan_input_double('rprimd',rprimd,9)
+    call scan_input_double('gprimd',gprimd,9)
     call scan_input_double_scalar('ucvol',ucvol)
     call scan_input_int('ngfft',ngfft,3)
     call scan_input_int('ngfftdg',ngfftdg,3)
