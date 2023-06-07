@@ -879,7 +879,7 @@ subroutine test_rotations(option,cplex)
 !  write(msg,'(3a,i0)')&
 !&  'The argument option should be 1 or 2,',ch10,&
 !&  'however, option=',option
-!  ABI_BUG(msg)
+!  LIBPAW_BUG(msg)
 ! end if
 !
 ! if (sizein<1) then

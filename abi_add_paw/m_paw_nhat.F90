@@ -150,28 +150,28 @@ subroutine pawmknhat(compch_fft,cplex,ider,idir,ipert,izero,gprimd,&
  qeq0=(qphon(1)**2+qphon(2)**2+qphon(3)**2<1.d-15)
  if (present(comm_fft)) then
    if ((.not.present(paral_kgb)).or.(.not.present(me_g0))) then
-     ABI_BUG('Need paral_kgb and me_g0 with comm_fft !')
+     LIBPAW_BUG('Need paral_kgb and me_g0 with comm_fft !')
    end if
  end if
  if(ider>0.and.nhatgrdim==0) then
-   ABI_BUG('Gradients of nhat required but not allocated!')
+   LIBPAW_BUG('Gradients of nhat required but not allocated!')
  end if
  if (my_natom>0) then
    if(nspden>1.and.nspden/=pawrhoij(1)%nspden) then
-     ABI_BUG('Wrong values for nspden and pawrhoij%nspden!')
+     LIBPAW_BUG('Wrong values for nspden and pawrhoij%nspden!')
    end if
    if(nspden>1.and.nspden/=pawfgrtab(1)%nspden) then
-     ABI_BUG('Wrong values for nspden and pawfgrtab%nspden!')
+     LIBPAW_BUG('Wrong values for nspden and pawfgrtab%nspden!')
    end if
    if(pawrhoij(1)%qphase<cplex) then
-     ABI_BUG('Must have pawrhoij()%qphase >= cplex!')
+     LIBPAW_BUG('Must have pawrhoij()%qphase >= cplex!')
    end if
    if (compute_phonons.and.(.not.qeq0)) then
      if (pawfgrtab(1)%rfgd_allocated==0) then
-       ABI_BUG('pawfgrtab()%rfgd array must be allocated!')
+       LIBPAW_BUG('pawfgrtab()%rfgd array must be allocated!')
      end if
      if (compute_grad.and.(.not.compute_nhat)) then
-       ABI_BUG('When q<>0, nhat gradients need nhat!')
+       LIBPAW_BUG('When q<>0, nhat gradients need nhat!')
      end if
    end if
  end if
@@ -691,10 +691,10 @@ subroutine pawnhatfr(ider,idir,ipert,my_natom,natom,nspden,ntypat,&
  if (my_natom>0) then
    if ((pawfgrtab(1)%gylm_allocated==0.or.pawfgrtab(1)%gylmgr_allocated==0).and. &
 &   pawfgrtab(1)%rfgd_allocated==0) then
-     ABI_BUG('pawnhatfr: pawfgrtab()%rfgd array must be allocated!')
+     LIBPAW_BUG('pawnhatfr: pawfgrtab()%rfgd array must be allocated!')
    end if
    if (pawrhoij(1)%qphase/=1) then
-     ABI_BUG('pawnhatfr: not supposed to be called with qphase=2!')
+     LIBPAW_BUG('pawnhatfr: not supposed to be called with qphase=2!')
    end if
  end if
 
@@ -1102,7 +1102,7 @@ subroutine nhatgrid(atindx1,gmet,my_natom,natom,nattyp,ngfft,ntypat,&
 !   end if
 !   if (.not.(grid_found)) then
 !     msg='Unable to find an allocated distrib for this fft grid!'
-!     ABI_BUG(msg)
+!     LIBPAW_BUG(msg)
 !   end if
 ! else
 !   the same goes here, this part is not relevant

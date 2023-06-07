@@ -201,7 +201,7 @@ subroutine pawinit(effmass_free,gnt_option,gsqcut_eff,hyb_range_fock,lcutdens,lm
 
  ntypat=size(pawtab)
  if (size(pawrad)/=ntypat) then
-   ABI_BUG('pawrad and pawtab should have the same size!')
+   LIBPAW_BUG('pawrad and pawtab should have the same size!')
  end if
 
 !Immediately set the value of usepotzero
@@ -321,7 +321,7 @@ subroutine pawinit(effmass_free,gnt_option,gsqcut_eff,hyb_range_fock,lcutdens,lm
    if (pawtab(itypat)%has_shapefncg>0) then
      if (gsqcut_eff<tol8) then
        message='Computation of shapefncg only possible when gsqcut>0!'
-       ABI_BUG(message)
+       LIBPAW_BUG(message)
      end if
      pawtab(itypat)%mqgrid_shp=mqgrid_shp_default
      if (allocated(pawtab(itypat)%shapefncg))  then
@@ -673,7 +673,7 @@ subroutine pawinit(effmass_free,gnt_option,gsqcut_eff,hyb_range_fock,lcutdens,lm
    if (abs(effmass_free-one)>tol8) then
      if (pawtab(itypat)%has_kij/=2) then
        message='we need kij and has_kij/=2!'
-       ABI_BUG(message)
+       LIBPAW_BUG(message)
      end if
      if (allocated(pawtab(itypat)%dij0)) then
        pawtab(itypat)%dij0(1:lmn2_size)=pawtab(itypat)%dij0(1:lmn2_size)-pawtab(itypat)%kij(1:lmn2_size)

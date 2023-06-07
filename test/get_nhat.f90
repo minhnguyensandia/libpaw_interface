@@ -17,7 +17,7 @@ subroutine get_nhat
     ! But because these arrays are not reset during SCF run,
     ! this cannot be directly seen from the current values of rhoijp
 
-    write(*,*) '2. Generating compensation charge from on-site rhoij'
+    write(*,*) '3. Generating compensation charge from on-site rhoij'
 
     open(unit=10,file='rhoij')
 

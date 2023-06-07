@@ -174,7 +174,7 @@ subroutine bound(dsqmax,dsqmin,gbound,gmet,kpt,ngfft,plane)
    'Action : check that kpt lies',&
    'reasonably within first Brillouin zone; ',ch10,&
    'else code bug, contact ABINIT group.'
-   ABI_BUG(msg)
+   LIBPAW_BUG(msg)
  end if
 
  gbound(1)=i1min
