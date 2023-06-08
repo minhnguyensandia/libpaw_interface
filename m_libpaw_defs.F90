@@ -64,6 +64,8 @@ module m_libpaw_defs
  real(dp), parameter :: tol14=0.00000000000001_dp
  real(dp), parameter :: tol16=0.0000000000000001_dp
 
+ real(dp), parameter :: half_sqrt2=0.70710678118654752440084436210484697_dp
+
 !Complex constants
 !-----------------------------------------------
  complex(dpc), parameter :: czero=(0._dp,0._dp)         ! 0 (complex)

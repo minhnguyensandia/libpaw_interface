@@ -177,8 +177,8 @@ subroutine atm2fft(atindx1,atmrho,atmvloc,dyfrn,dyfrv,eltfrn,gauss,gmet,gprimd,&
 &                  pawtab,ph1d,qgrid,qprtrb,rcut,rhog,rprimd,strn,strv,ucvol,usepaw,vg,vg1,vg1_core,vprtrb,vspl,&
 !removed psps because I'm using this for PAW here
 !&                  psps,pawtab,ph1d,qgrid,qprtrb,rcut,rhog,rprimd,strn,strv,ucvol,usepaw,vg,vg1,vg1_core,vprtrb,vspl,&
-&                  n2_in,fftn2_distrib,ffti2_local,is2_in,comm_fft,me_g0,paral_kgb)
-!&                  is2_in,comm_fft,me_g0,paral_kgb,distribfft) ! optional arguments
+&                  n2_in,fftn2_distrib,ffti2_local,n3_in,fftn3_distrib,ffti3_local,&
+&                  is2_in,comm_fft,me_g0,paral_kgb)!,distribfft) ! optional arguments
 
 !Arguments ------------------------------------
 !scalars
@@ -213,6 +213,9 @@ subroutine atm2fft(atindx1,atmrho,atmvloc,dyfrn,dyfrv,eltfrn,gauss,gmet,gprimd,&
  !Check Computer Physics Communications 154 (2003) 105-110
  integer,intent(in) :: n2_in
  integer,intent(in) :: fftn2_distrib(n2_in),ffti2_local(n2_in)
+
+ integer,intent(in) :: n3_in
+ integer,intent(in) :: fftn3_distrib(n3_in),ffti3_local(n3_in)
 
 !Local variables ------------------------------
 !scalars
@@ -763,8 +766,8 @@ subroutine atm2fft(atindx1,atmrho,atmvloc,dyfrn,dyfrv,eltfrn,gauss,gmet,gprimd,&
 
 ! This is the part where 3D-FFT is done according to the paper cited above
 ! (Computer Physics Communications 154 (2003) 105-110)
-! It uses many dependencies from ABINIT and I will adopt and re-write
-! them in order for this interface to be a stand-alone package
+! In ABINIT different FFT implementation are considered, and I picked the
+! internal realization of ABINIT for convenience
 
 ! G space : workv/workn -> R space : atmvloc/atmrho
 
@@ -772,14 +775,16 @@ subroutine atm2fft(atindx1,atmrho,atmvloc,dyfrn,dyfrv,eltfrn,gauss,gmet,gprimd,&
 
    if(optv == 1) then
      call zerosym(workv,2,n1,n2,n3,n2_in,fftn2_distrib,ffti2_local)
-     !call fft_backward(workv,atmvloc)
+     call sg2002_mpifourdp(2,nfft,ngfft,1,1,& !cplx = 1; ndat = 1;isign = 1, means G -> r
+       fftn2_distrib,ffti2_local,fftn3_distrib,ffti3_local,workv,atmvloc)
      atmvloc(:)=atmvloc(:)*xnorm
      LIBPAW_DEALLOCATE(workv)
    endif
 
    if(optn == 1) then
      call zerosym(workn,2,n1,n2,n3,n2_in,fftn2_distrib,ffti2_local)
-     !call fft_backward(workn,atmrho)
+     call sg2002_mpifourdp(2,nfft,ngfft,1,1,& !isign = 1, means G -> r
+       fftn2_distrib,ffti2_local,fftn3_distrib,ffti3_local,workn,atmrho)
      atmrho(:)=atmrho(:)*xnorm
      LIBPAW_DEALLOCATE(workn)
    endif

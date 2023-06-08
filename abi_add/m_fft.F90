@@ -106,8 +106,8 @@ subroutine zerosym(array,cplex,n1,n2,n3,&
 !     ABI_BUG("Unable to find an allocated distrib for this fft grid")
 !   end if
 ! else
-!   ABI_MALLOC(fftn2_distrib,(n2))
-!   ABI_MALLOC(ffti2_local,(n2))
+!   LIBPAW_ALLOCATE(fftn2_distrib,(n2))
+!   LIBPAW_ALLOCATE(ffti2_local,(n2))
 !   fftn2_distrib=0;ffti2_local=(/(i2,i2=1,n2)/)
 ! end if
 
@@ -197,8 +197,8 @@ subroutine zerosym(array,cplex,n1,n2,n3,&
  end if
 
  !if (.not.present(distribfft)) then
- !  ABI_FREE(fftn2_distrib)
- !  ABI_FREE(ffti2_local)
+ !  LIBPAW_DEALLOCATE(fftn2_distrib)
+ !  LIBPAW_DEALLOCATE(ffti2_local)
  !end if
 
  !DBG_EXIT("COLL")
