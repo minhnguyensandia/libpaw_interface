@@ -27,7 +27,7 @@ module m_atm2fft
  !use defs_datatypes,only : pseudopotential_type
  !use m_gtermcutoff, only : termcutoff
  use m_pawtab,      only : pawtab_type
- !use m_fft,         only : zerosym, fourdp
+ use m_fft,         only : zerosym
  !use m_mpinfo,      only : set_mpi_enreg_fft, unset_mpi_enreg_fft, initmpi_seq
 
  implicit none
@@ -768,15 +768,19 @@ subroutine atm2fft(atindx1,atmrho,atmvloc,dyfrn,dyfrv,eltfrn,gauss,gmet,gprimd,&
 
 ! G space : workv/workn -> R space : atmvloc/atmrho
 
+   xnorm=one/ucvol
+
    if(optv == 1) then
-     !call zerosym(workv)
+     call zerosym(workv,2,n1,n2,n3,n2_in,fftn2_distrib,ffti2_local)
      !call fft_backward(workv,atmvloc)
+     atmvloc(:)=atmvloc(:)*xnorm
      LIBPAW_DEALLOCATE(workv)
    endif
 
    if(optn == 1) then
-     !call zerosym(workn)
+     call zerosym(workn,2,n1,n2,n3,n2_in,fftn2_distrib,ffti2_local)
      !call fft_backward(workn,atmrho)
+     atmrho(:)=atmrho(:)*xnorm
      LIBPAW_DEALLOCATE(workn)
    endif
 
