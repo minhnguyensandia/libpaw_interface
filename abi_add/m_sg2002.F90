@@ -130,10 +130,7 @@ subroutine sg2002_back(cplex,ndat,n1,n2,n3,nd1,nd2,nd3,nd1eff,nd2proc,nd3proc,op
 
 ! *************************************************************************
 
- !nproc_fft = xmpi_comm_size(comm_fft); me_fft = xmpi_comm_rank(comm_fft)
- 
- me_fft = xpaw_mpi_comm_rank(xpaw_mpi_world)
- nproc_fft = xpaw_mpi_comm_size(xpaw_mpi_world)
+ nproc_fft = xpaw_mpi_comm_size(comm_fft); me_fft = xpaw_mpi_comm_rank(comm_fft)
 
  ! find cache size that gives optimal performance on machine
  ncache=4*max(n1,n2,n3,1024)
@@ -230,10 +227,10 @@ subroutine sg2002_back(cplex,ndat,n1,n2,n3,nd1,nd2,nd3,nd1eff,nd2proc,nd3proc,op
    ! input:  G1,G2,R3,Rp3,(Gp2)
    ! output: G1,G2,G3,Gp2,(Rp3)
    if (nproc_fft>1) then
-     call timab(543,1,tsec)
-     call xmpi_alltoall(zmpi2,2*n1*nd2proc*nd3proc, &
+     !call timab(543,1,tsec)
+     call xpaw_mpi_alltoall(zmpi2,2*n1*nd2proc*nd3proc, &
 &                       zmpi1,2*n1*nd2proc*nd3proc,comm_fft,ierr)
-     call timab(543,2,tsec)
+     !call timab(543,2,tsec)
    end if
 
    do j3=1,nd3proc
@@ -414,10 +411,7 @@ subroutine sg2002_forw(cplex,ndat,n1,n2,n3,nd1,nd2,nd3,nd1eff,nd2proc,nd3proc,op
 
 ! *************************************************************************
 
- !nproc_fft = xmpi_comm_size(comm_fft); me_fft = xmpi_comm_rank(comm_fft)
- 
- me_fft = xpaw_mpi_comm_rank(xpaw_mpi_world)
- nproc_fft = xpaw_mpi_comm_size(xpaw_mpi_world)
+ nproc_fft = xpaw_mpi_comm_size(comm_fft); me_fft = xpaw_mpi_comm_rank(comm_fft)
 
  ! find cache size that gives optimal performance on machine
  ncache=4*max(n1,n2,n3,1024)
@@ -541,10 +535,10 @@ subroutine sg2002_forw(cplex,ndat,n1,n2,n3,nd1,nd2,nd3,nd1eff,nd2proc,nd3proc,op
    ! input:  G1,G2,R3,Gp2,(Rp3)
    ! output: G1,G2,R3,Rp3,(Gp2)
    if (nproc_fft>1) then
-     call timab(544,1,tsec)
-     call xmpi_alltoall(zmpi1,2*n1*nd2proc*nd3proc, &
+     !call timab(544,1,tsec)
+     call xpaw_mpi_alltoall(zmpi1,2*n1*nd2proc*nd3proc, &
 &                       zmpi2,2*n1*nd2proc*nd3proc,comm_fft,ierr)
-     call timab(544,2,tsec)
+     !call timab(544,2,tsec)
    end if
 
    ! transform along z axis
@@ -661,8 +655,8 @@ subroutine sg2002_mpifourdp(cplex,nfft,ngfft,ndat,isign,&
  n1=ngfft(1); n2=ngfft(2); n3=ngfft(3)
  
  n4=2*(n1/2)+1; n5=2*(n2/2)+1; n6=n3
- me_fft = xpaw_mpi_comm_rank(xpaw_mpi_world)
- nproc_fft = xpaw_mpi_comm_size(xpaw_mpi_world)
+ me_fft = xpaw_mpi_comm_rank(comm_fft)
+ nproc_fft = xpaw_mpi_comm_size(comm_fft)
 
  !n4=ngfft(4); n5=ngfft(5); n6=ngfft(6)
  !me_fft=ngfft(11); nproc_fft=ngfft(10)

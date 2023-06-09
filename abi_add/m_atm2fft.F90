@@ -28,6 +28,7 @@ module m_atm2fft
  !use m_gtermcutoff, only : termcutoff
  use m_pawtab,      only : pawtab_type
  use m_fft,         only : zerosym
+ use m_sg2002
  !use m_mpinfo,      only : set_mpi_enreg_fft, unset_mpi_enreg_fft, initmpi_seq
 
  implicit none
@@ -775,16 +776,16 @@ subroutine atm2fft(atindx1,atmrho,atmvloc,dyfrn,dyfrv,eltfrn,gauss,gmet,gprimd,&
 
    if(optv == 1) then
      call zerosym(workv,2,n1,n2,n3,n2_in,fftn2_distrib,ffti2_local)
-     call sg2002_mpifourdp(2,nfft,ngfft,1,1,& !cplx = 1; ndat = 1;isign = 1, means G -> r
-       fftn2_distrib,ffti2_local,fftn3_distrib,ffti3_local,workv,atmvloc)
+     call sg2002_mpifourdp(1,nfft,ngfft,1,1,& !cplx = 1; ndat = 1;isign = 1, means G -> r
+       fftn2_distrib,ffti2_local,fftn3_distrib,ffti3_local,workv,atmvloc,xpaw_mpi_world)
      atmvloc(:)=atmvloc(:)*xnorm
      LIBPAW_DEALLOCATE(workv)
    endif
 
    if(optn == 1) then
      call zerosym(workn,2,n1,n2,n3,n2_in,fftn2_distrib,ffti2_local)
-     call sg2002_mpifourdp(2,nfft,ngfft,1,1,& !isign = 1, means G -> r
-       fftn2_distrib,ffti2_local,fftn3_distrib,ffti3_local,workn,atmrho)
+     call sg2002_mpifourdp(1,nfft,ngfft,1,1,& !cplx = 1; ndat = 1;isign = 1, means G -> r
+       fftn2_distrib,ffti2_local,fftn3_distrib,ffti3_local,workn,atmrho,xpaw_mpi_world)
      atmrho(:)=atmrho(:)*xnorm
      LIBPAW_DEALLOCATE(workn)
    endif

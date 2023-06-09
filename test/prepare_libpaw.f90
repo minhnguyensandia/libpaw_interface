@@ -10,9 +10,8 @@ subroutine prepare_libpaw
     implicit none
 
     integer :: stat
-    integer :: n3, i3
+    integer :: n3, i3, n2, i2
     integer :: it, ia
-    integer, allocatable :: fftn3_distrib(:), ffti3_local(:)
 
     write(*,*) '1. Setting up libpaw'
     open(unit=10,file='pawfiles')
@@ -122,6 +121,15 @@ subroutine prepare_libpaw
     
     do i3 = 1, n3
         ffti3_local(i3) = i3
+    enddo
+
+    n2 = ngfftdg(2)
+    allocate(fftn2_distrib(n2), ffti2_local(n2))
+    !This is the case when running serially
+    fftn2_distrib = 0
+
+    do i2 = 1, n2
+        ffti2_local(i2) = i2
     enddo
 
     call nhatgrid(atindx1, gmet, natom, natom, nattyp, ngfftdg, ntypat, &

@@ -228,7 +228,6 @@ subroutine pawdij(cplex,enunit,gprimd,ipert,my_natom,natom,nfft,nfftot,nspden,nt
 !----- Check consistency of arguments
 !------------------------------------------------------------------------
 
-write(10,*) 'nfft,nfftot',nfft,nfftot
 !  === Check optional arguments ===
 
  hyb_mixing_   =zero ; if(present(hyb_mixing))    hyb_mixing_   =hyb_mixing
@@ -306,7 +305,6 @@ write(10,*) 'nfft,nfftot',nfft,nfftot
 
 !Set up parallelism over atoms
  paral_atom=(present(comm_atom).and.(my_natom/=natom))
- write(10,*) 'paral_atom',paral_atom
 
  nullify(my_atmtab);if (present(mpi_atmtab)) my_atmtab => mpi_atmtab
  my_comm_atom=xpaw_mpi_comm_self;if (present(comm_atom)) my_comm_atom=comm_atom

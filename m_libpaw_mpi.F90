@@ -98,6 +98,7 @@ module m_libpaw_mpi
   module procedure xpaw_mpi_alltoall_int1d
   module procedure xpaw_mpi_alltoall_dp1d
   module procedure xpaw_mpi_alltoall_dp2d
+  module procedure xpaw_mpi_alltoall_dp4d
  end interface xpaw_mpi_alltoall
 
  public :: xpaw_mpi_alltoallv             ! Wrapper for MPI_ALLTOALLV
@@ -1108,6 +1109,51 @@ subroutine xpaw_mpi_alltoall_dp2d(xval,sendsize,recvbuf,recvsize,spaceComm,ier)
  recvbuf=xval
 #endif
 end subroutine xpaw_mpi_alltoall_dp2d
+!!***
+
+!!****f* ABINIT/xpaw_mpi_alltoall_dp2d
+!! NAME
+!!  xpaw_mpi_alltoall_dp2d
+!!
+!! FUNCTION
+!!  MPI_ALLTOALL for 2D double precision arrays
+!!
+!! INPUTS
+!!  xval= buffer array
+!!  sendsize= size of sent buffer
+!!  recvsize= size of received buffer
+!!  spaceComm= MPI communicator
+!!
+!! OUTPUT
+!!  ier= exit status, a non-zero value meaning there is an error
+!!
+!! SIDE EFFECTS
+!!  recvbuf= received buffer
+!!
+!! SOURCE
+
+subroutine xpaw_mpi_alltoall_dp4d(xval,sendsize,recvbuf,recvsize,spaceComm,ier)
+
+!Arguments-------------------------
+ real(dp), intent(in)    :: xval(:,:,:,:)
+ real(dp), intent(inout) :: recvbuf(:,:,:,:)
+ integer, intent(in) :: sendsize, recvsize
+ integer, intent(in) :: spaceComm
+ integer, intent(out) :: ier
+
+! *************************************************************************
+ ier=0
+#if defined HAVE_MPI
+ if (spaceComm /= xpaw_mpi_comm_self .and. spaceComm /= xpaw_mpi_comm_null) then
+   call MPI_ALLTOALL(xval, sendsize, MPI_DOUBLE_PRECISION, recvbuf, &
+&   recvsize, MPI_DOUBLE_PRECISION, spaceComm, ier)
+ else if (spaceComm == xpaw_mpi_comm_self) then
+   recvbuf=xval
+ end if
+#else
+ recvbuf=xval
+#endif
+end subroutine xpaw_mpi_alltoall_dp4d
 !!***
 
 !----------------------------------------------------------------------

@@ -52,6 +52,9 @@ module libpaw_mod
       real*8,allocatable  :: qgrid_ff(:), qgrid_vl(:) !ff:'corase', vl:'fine'
       real*8,allocatable  :: ffspl(:,:,:), vlspl(:,:,:)
 
+      integer, allocatable :: fftn3_distrib(:), ffti3_local(:)
+      integer, allocatable :: fftn2_distrib(:), ffti2_local(:) !For FFT parallelization
+
       real*8  :: epsatm
       real*8  :: xcccrc
 

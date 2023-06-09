@@ -254,7 +254,7 @@ subroutine pawdenpot(compch_sph,epaw,epawdc,ipert,ixc,&
    end if
  end if
 
-! ipositron=0
+ ipositron=0
 ! if (present(electronpositron)) then
 !   ipositron=electronpositron_calctype(electronpositron)
 !   if (ipositron==1.and.pawtab(1)%has_kij/=2) then
