@@ -1,9 +1,23 @@
+! The input variables:
+! 1. ecut, ecutpaw : kinetic energy cutoff of the planewave basis set
+! there will be one coarse grid for density/potential, and a fine grid for PAW
+! the unit is in Hartree
+! 2. rprimd, gprimd : real and reciprocal space lattice vectors, respectively
+! unit for rprimd is in Bohr, and for gprimd is in Bohr^-1
+! 3. gmet : reciprocal space metric (bohr^-2)
+! 4. ucvol : volume of unit cell (Bohr^3)
+! 5. ngfft, ngfftdg : dimension of FFT grids of the corase and fine grids
+! 6. natom, ntypat, typat: #. atoms, #. element types
+! and typat records the type of each atom
+! 7. xred : coordinate of each atom, in terms of rprimd (namely, direct coordinate)
+! 8. filename_list : filename of the PAW xml files for each element
+
 subroutine fortran_main(ecut,ecutpaw,gmet,rprimd,gprimd,ucvol, &
     ngfft,ngfftdg,natom,ntypat,typat,xred,filename_list)
     implicit none
 
     real*8  :: ecut, ecutpaw !a coarse grid, and a fine grid for PAW
-    real*8  :: gmet(3,3) !reciprocal space lattice vectors
+    real*8  :: gmet(3,3) !reciprocal space metric
     real*8  :: rprimd(3,3) !lattice vectors
     real*8  :: gprimd(3,3) !reciprocal space lattice vectors
     integer :: ngfft(3),ngfftdg(3)
