@@ -1,5 +1,5 @@
 subroutine prepare_libpaw(ecut,ecutpaw,gmet,rprimd,gprimd,ucvol,ngfft,ngfftdg, &
-        natom,ntypat,typat,xred,ixc,xclevel)
+        natom,ntypat,typat,xred,ixc,xclevel,filename_list)
     use m_pawpsp
     use m_pawxmlps
     use m_paw_init
@@ -24,6 +24,8 @@ subroutine prepare_libpaw(ecut,ecutpaw,gmet,rprimd,gprimd,ucvol,ngfft,ngfftdg, &
     integer :: ntypat, natom
     integer :: typat(natom)
     real*8  :: xred(3,natom)
+
+    character(len=264) :: filename_list(ntypat)
 
     hyb_mixing = 0.0
     hyb_range_fock = 0.0
@@ -52,12 +54,9 @@ subroutine prepare_libpaw(ecut,ecutpaw,gmet,rprimd,gprimd,ucvol,ngfft,ngfftdg, &
     allocate(ffspl(mqgrid,2,lnmax), vlspl(mqgrid,2,ntypat))
 
     do it = 1, ntypat
-        read(10,*,iostat=stat) filename
-        if(stat/=0) exit
-
         ! Read paw input files
-        call rdpawpsxml(filename, pawsetup)
-        call rdpawpsxml(filename, paw_setuploc)
+        call rdpawpsxml(filename_list(it), pawsetup)
+        call rdpawpsxml(filename_list(it), paw_setuploc)
         call pawpsp_read_header_xml(lloc, lmax, pspcod, pspxc,&
             & pawsetup, r2well, zion, znucl(it))
         call pawpsp_read_pawheader(pawpsp_header%basis_size,&

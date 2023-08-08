@@ -15,7 +15,6 @@ module libpaw_mod
       !for normal nspin = 1,2 calculations, nsppol is set to be same as nspden
       real*8  :: spinat(3,1) = 0.0 !no atomic magnetization for now
 
-      character(264)           :: filename !name of PAW xml file
       type(paw_setup_t)        :: pawsetup
       type(pawpsp_header_type) :: pawpsp_header
       type(pawang_type)        :: pawang

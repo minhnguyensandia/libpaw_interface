@@ -1,4 +1,5 @@
-subroutine fortran_main(ecut,ecutpaw,gmet,rprimd,gprimd,ucvol,ngfft,ngfftdg,natom,ntypat,typat,xred)
+subroutine fortran_main(ecut,ecutpaw,gmet,rprimd,gprimd,ucvol, &
+    ngfft,ngfftdg,natom,ntypat,typat,xred,filename_list)
     implicit none
 
     real*8  :: ecut, ecutpaw !a coarse grid, and a fine grid for PAW
@@ -15,9 +16,11 @@ subroutine fortran_main(ecut,ecutpaw,gmet,rprimd,gprimd,ucvol,ngfft,ngfftdg,nato
     integer :: typat(natom)
     real*8  :: xred(3,natom)
     
+    character(len=264) :: filename_list(ntypat)
+
     write(*,*) '1. Setting up libpaw'
-    open(unit=10,file='pawfiles')
-    open(unit=11,file='input')
+    !open(unit=10,file='pawfiles')
+    !open(unit=11,file='input')
 
     ! Read some input variables
     !call scan_input_double_scalar('ecut',ecut)
@@ -42,7 +45,7 @@ subroutine fortran_main(ecut,ecutpaw,gmet,rprimd,gprimd,ucvol,ngfft,ngfftdg,nato
 
     write(*,*) 'Test code for libpaw'
     call prepare_libpaw(ecut,ecutpaw,gmet,rprimd,gprimd,ucvol,ngfft,ngfftdg, &
-        natom,ntypat,typat,xred,ixc,xclevel)
+        natom,ntypat,typat,xred,ixc,xclevel,filename_list)
 
     call get_vloc_ncoret(ngfftdg,ngfft,natom,ntypat,rprimd,gprimd,gmet,ucvol,xred)
     call get_nhat(natom,ntypat,xred,ngfft,ngfftdg,gprimd,rprimd,ucvol)
