@@ -9,10 +9,11 @@
 ! atindx is (5 1 2 3 4), where the H atoms are ordered before the C atom
 ! and atindx1 is (2 3 4 5 1), because, for example, '1' is the 2nd element in array atindx
 
-subroutine map_atom_index
+subroutine map_atom_index(ntypat,natom,typat)
     use libpaw_mod
     implicit none
 
+    integer :: ntypat,natom,typat(natom)
     integer :: indx, itypat, iatom
 
     indx=1

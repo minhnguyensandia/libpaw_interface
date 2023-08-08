@@ -1,6 +1,6 @@
 ! Following m_prcref.F90
 
-subroutine get_vloc_ncoret
+subroutine get_vloc_ncoret(ngfftdg,ngfft,natom,ntypat,rprimd,gprimd,gmet,ucvol,xred)
     use libpaw_mod
     use m_atm2fft
     use m_kg
@@ -11,6 +11,10 @@ subroutine get_vloc_ncoret
     real*8, allocatable :: dummy(:),dummy1(:),dummy2(:),dummy3(:),dummy4(:),dummy5(:),dummy8(:),dummy9(:)
     real*8  :: dummy6(6),dummy7(6),rcut,vprtrb(2)
     integer :: nfft, mgrid, qprtrb(3)
+    integer :: ngfftdg(3),ngfft(3)
+    integer :: natom, ntypat
+    real*8  :: rprimd(3,3),gprimd(3,3),gmet(3,3)
+    real*8  :: ucvol,xred(3,natom)
 
     write(*,*) '2. Generating pseudo charge density and vloc on FFT grid'
 
@@ -31,4 +35,6 @@ subroutine get_vloc_ncoret
         & ucvol,1,dummy8,dummy8,dummy8,vprtrb,vlspl,&
         & ngfftdg(2),fftn2_distrib,ffti2_local,ngfftdg(3),fftn3_distrib,ffti3_local)
     
+    !write(26,*) 'n',ncoret
+    !write(26,*) 'v',vloc
 end subroutine

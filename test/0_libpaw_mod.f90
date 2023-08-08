@@ -11,11 +11,6 @@ module libpaw_mod
     
       !In practice, this part will be obtained from
       !the program calling libpaw_interface
-      real*8  :: ecut, ecutpaw !a coarse grid, and a fine grid for PAW
-      real*8  :: gmet(3,3) !reciprocal space lattice vectors
-      real*8  :: rprimd(3,3) !lattice vectors
-      real*8  :: gprimd(3,3) !reciprocal space lattice vectors
-      real*8  :: ucvol !volume of unit cell
       integer :: nspden = 1, nsppol = 1 !number of spin components for density and wavefunctions
       !for normal nspin = 1,2 calculations, nsppol is set to be same as nspden
       real*8  :: spinat(3,1) = 0.0 !no atomic magnetization for now
@@ -32,21 +27,17 @@ module libpaw_mod
       type(paw_an_type),    allocatable     :: paw_an(:)
       type(pawrhoij_type),  allocatable     :: pawrhoij(:)
 
-      integer :: ntypat, natom
-      integer, allocatable :: typat(:), l_size_atm(:), nattyp(:)
+      integer, allocatable :: l_size_atm(:), nattyp(:)
       integer, allocatable :: lexexch(:), lpawu(:) !no exact exchange, no dft+u
 
-      real*8,  allocatable :: znucl(:), xred(:,:)
+      real*8,  allocatable :: znucl(:)
       integer, allocatable :: atindx1(:),atindx(:)
 
       integer :: lloc, lmax, pspcod, pspxc
-      integer :: ixc, xclevel !functional; will be set externally in practice
       real*8  :: hyb_mixing, hyb_range_fock
       real*8  :: r2well, zion
 
       integer :: pawspnorb = 0, nspinor = 1 !not considering soc yet
-
-      integer :: ngfft(3),ngfftdg(3)
       
       real*8  :: gsqcut, gsqcutdg, gsqcut_eff
       real*8,allocatable  :: qgrid_ff(:), qgrid_vl(:) !ff:'corase', vl:'fine'

@@ -1,4 +1,4 @@
-subroutine get_dij
+subroutine get_dij(natom,ntypat,ixc,xclevel,ngfft,ngfftdg,xred,ucvol,gprimd)
     use libpaw_mod
     use m_paw_denpot
     use m_pawdij
@@ -9,6 +9,10 @@ subroutine get_dij
     real*8  :: nucdipmom(3,natom), qphon(3)
     integer :: nfft
     real*8, allocatable :: vtrial(:,:), vxc(:,:)
+
+    integer :: natom,ntypat,ixc,xclevel
+    integer :: ngfft(3),ngfftdg(3)
+    real*8  :: xred(3,natom),ucvol,gprimd(3,3)
 
     write(*,*) '4. Generating dij from on-site rhoij, v_ks and v_xc'
 

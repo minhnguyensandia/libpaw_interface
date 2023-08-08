@@ -1,4 +1,5 @@
-subroutine prepare_libpaw
+subroutine prepare_libpaw(ecut,ecutpaw,gmet,rprimd,gprimd,ucvol,ngfft,ngfftdg, &
+        natom,ntypat,typat,xred,ixc,xclevel)
     use m_pawpsp
     use m_pawxmlps
     use m_paw_init
@@ -13,39 +14,27 @@ subroutine prepare_libpaw
     integer :: n3, i3, n2, i2
     integer :: it, ia
 
-    write(*,*) '1. Setting up libpaw'
-    open(unit=10,file='pawfiles')
-    open(unit=11,file='input')
+    real*8  :: ecut, ecutpaw !a coarse grid, and a fine grid for PAW
+    real*8  :: gmet(3,3) !reciprocal space lattice vectors
+    real*8  :: rprimd(3,3) !lattice vectors
+    real*8  :: gprimd(3,3) !reciprocal space lattice vectors
+    integer :: ngfft(3),ngfftdg(3)
+    real*8  :: ucvol !volume of unit cell
+    integer :: ixc, xclevel !functional; will be set externally in practice
+    integer :: ntypat, natom
+    integer :: typat(natom)
+    real*8  :: xred(3,natom)
 
-    ! Read some input variables
-    call scan_input_double_scalar('ecut',ecut)
-    call scan_input_double_scalar('ecutpaw',ecutpaw)
-    call scan_input_double('gmet',gmet,9)
-    call scan_input_double('rprimd',rprimd,9)
-    call scan_input_double('gprimd',gprimd,9)
-    call scan_input_double_scalar('ucvol',ucvol)
-    call scan_input_int('ngfft',ngfft,3)
-    call scan_input_int('ngfftdg',ngfftdg,3)
-    call scan_input_int_scalar('natom',natom)
-    call scan_input_int_scalar('ntypat',ntypat)
-
-    allocate(typat(natom), znucl(ntypat), nattyp(ntypat), lexexch(ntypat), &
-        & lpawu(ntypat), l_size_atm(natom), xred(3,natom))
-    allocate(pawrad(ntypat), pawtab(ntypat), pawrhoij(natom), paw_ij(natom), &
-        & paw_an(natom), pawfgrtab(natom))
-    allocate(atindx(natom),atindx1(natom))
-    
-    call scan_input_int('typat',typat,natom)
-    call scan_input_double('xred',xred,3*natom)
-
-    ! (Temporary) set xc functional type
-    ixc = 7 ! corresponds to PW92 LDA functional
-    xclevel = 1
     hyb_mixing = 0.0
     hyb_range_fock = 0.0
 
+    allocate(znucl(ntypat), nattyp(ntypat), lexexch(ntypat), lpawu(ntypat), l_size_atm(natom))
+    allocate(pawrad(ntypat), pawtab(ntypat), pawrhoij(natom), paw_ij(natom), &
+        & paw_an(natom), pawfgrtab(natom))
+    allocate(atindx(natom),atindx1(natom))
+
     ! Process atomic information
-    call map_atom_index()
+    call map_atom_index(ntypat,natom,typat)
 
     ! Process energy cutoff
     call getcut(ecut,gmet,gsqcut,iboxcut,ngfft)
@@ -145,52 +134,6 @@ subroutine prepare_libpaw
     close(10)
     close(11)
 contains
-    subroutine scan_input_double(name_in,value,n)
-        character(*)      :: name_in
-        character(len=20) :: name
-        integer           :: n
-        real*8            :: value(n)
-
-        read(11,*) name, value
-        if(trim(name)/=trim(name_in)) then
-            write(*,*) 'variable name does not match : ',trim(name),trim(name_in)
-        endif
-    end subroutine
-
-    subroutine scan_input_double_scalar(name_in,value)
-        character(*)      :: name_in
-        character(len=20) :: name
-        real*8            :: value
-
-        read(11,*) name, value
-        if(trim(name)/=trim(name_in)) then
-            write(*,*) 'variable name does not match : ',trim(name),trim(name_in)
-        endif
-    end subroutine
-
-    subroutine scan_input_int(name_in,value,n)
-        character(*)      :: name_in
-        character(len=20) :: name
-        integer           :: n
-        integer           :: value(n)
-
-        read(11,*) name, value
-        if(trim(name)/=trim(name_in)) then
-            write(*,*) 'variable name does not match : ',trim(name),trim(name_in)
-        endif
-    end subroutine
-
-    subroutine scan_input_int_scalar(name_in,value)
-        character(*)      :: name_in
-        character(len=20) :: name
-        integer           :: value
-
-        read(11,*) name, value
-        if(trim(name)/=trim(name_in)) then
-            write(*,*) 'variable name does not match : ',trim(name),trim(name_in)
-        endif
-    end subroutine
-
     subroutine generate_qgrid(gsqcut,qgrid,mqgrid)
         real*8  :: gsqcut
         real*8  :: qmax, dq

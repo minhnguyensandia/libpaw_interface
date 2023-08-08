@@ -1,4 +1,4 @@
-subroutine get_nhat
+subroutine get_nhat(natom,ntypat,xred,ngfft,ngfftdg,gprimd,rprimd,ucvol)
     use libpaw_mod
     use m_paw_nhat
     implicit none
@@ -7,6 +7,9 @@ subroutine get_nhat
     real*8  :: compch_fft
     real*8, allocatable :: nhat(:,:), nhatgr(:,:,:)
     real*8  :: qphon(3)
+    real*8  :: gprimd(3,3),rprimd(3,3)
+    integer :: natom,ntypat,ngfft(3),ngfftdg(3)
+    real*8  :: ucvol,xred(3,natom)
 
     ! Some matrix elements of the on-site density matrix rhoij
     ! might be zero, and only the non-zero elements are stored in
