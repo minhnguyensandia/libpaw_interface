@@ -21,16 +21,16 @@ target_include_directories(libpaw_interface PUBLIC
     ${PROJECT_BINARY_DIR}/abi_add_paw)
 add_dependencies(libpaw_interface libpaw_mod paw_level4 fft_level3 paw_add)
 
-add_executable(paw main.cpp)
-add_dependencies(paw libpaw_interface)
-target_include_directories(paw PUBLIC ${PROJECT_BINARY_DIR}/test)
-target_link_directories(paw PUBLIC
+add_executable(paw_lib main.cpp)
+add_dependencies(paw_lib libpaw_interface)
+target_include_directories(paw_lib PUBLIC ${PROJECT_BINARY_DIR}/test)
+target_link_directories(paw_lib PUBLIC
     ${PROJECT_BINARY_DIR}
     ${PROJECT_BINARY_DIR}/test
     ${PROJECT_BINARY_DIR}/abi_add
     ${PROJECT_BINARY_DIR}/abi_xc_lowlevel
     ${PROJECT_BINARY_DIR}/abi_add_paw)
-target_link_libraries(paw PUBLIC
+target_link_libraries(paw_lib PUBLIC
     paw_defs
     paw_mpi
     paw_tools
