@@ -1,5 +1,5 @@
 subroutine prepare_libpaw(ecut,ecutpaw,gmet,rprimd,gprimd,ucvol,ngfft,ngfftdg, &
-        natom,ntypat,typat,xred,ixc,xclevel,filename_list)
+        natom,ntypat,typat,xred,ixc,xclevel,filename_list,nspden,nsppol)
     use m_pawpsp
     use m_pawxmlps
     use m_paw_init
@@ -24,6 +24,8 @@ subroutine prepare_libpaw(ecut,ecutpaw,gmet,rprimd,gprimd,ucvol,ngfft,ngfftdg, &
     integer :: ntypat, natom
     integer :: typat(natom)
     real*8  :: xred(3,natom)
+    integer :: nspden,nsppol!number of spin components for density and wavefunctions
+    !for normal nspin = 1,2 calculations, nsppol is set to be same as nspden
 
     character(len=264) :: filename_list(ntypat)
 

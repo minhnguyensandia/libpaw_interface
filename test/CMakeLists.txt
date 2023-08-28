@@ -12,6 +12,7 @@ add_library(libpaw_interface OBJECT
     get_vloc_ncoret.f90
     map_atom_index.f90
     prepare_libpaw.f90
+    set_rhoij.f90
 )
 target_include_directories(libpaw_interface PUBLIC
     ${PROJECT_BINARY_DIR}

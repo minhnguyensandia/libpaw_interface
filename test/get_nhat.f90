@@ -1,14 +1,14 @@
-subroutine get_nhat(natom,ntypat,xred,ngfft,ngfftdg,gprimd,rprimd,ucvol)
+subroutine get_nhat(natom,ntypat,xred,ngfft,nfft,nspden,gprimd,rprimd,ucvol,nhat,nhatgr)
     use libpaw_mod
     use m_paw_nhat
     implicit none
 
-    integer :: iatom, nfft
+    integer :: iatom,nfft,nspden
     real*8  :: compch_fft
-    real*8, allocatable :: nhat(:,:), nhatgr(:,:,:)
+    real*8  :: nhat(nfft,nspden), nhatgr(nfft,nspden,3)
     real*8  :: qphon(3)
     real*8  :: gprimd(3,3),rprimd(3,3)
-    integer :: natom,ntypat,ngfft(3),ngfftdg(3)
+    integer :: natom,ntypat,ngfft(3)
     real*8  :: ucvol,xred(3,natom)
 
     ! Some matrix elements of the on-site density matrix rhoij
@@ -21,21 +21,8 @@ subroutine get_nhat(natom,ntypat,xred,ngfft,ngfftdg,gprimd,rprimd,ucvol)
     ! this cannot be directly seen from the current values of rhoijp
 
     write(*,*) '3. Generating compensation charge from on-site rhoij'
-
-    open(unit=10,file='rhoij')
-
-    do iatom = 1, natom
-        read(10,*) pawrhoij(iatom)%nrhoijsel
-        read(10,*) pawrhoij(iatom)%rhoijselect
-        read(10,*) pawrhoij(iatom)%rhoijp
-    enddo
-
-    close(10)
     
     qphon = 0.0 !phonon, not used
-    nfft = ngfftdg(1) * ngfftdg(2) * ngfftdg(3)
-
-    allocate(nhat(nfft,nspden), nhatgr(nfft,nspden,3))
 
     call pawmknhat(compch_fft, cplex, 0, 0, 0, 0, & !ider,idir,ipert,izero
         & gprimd, natom, natom, nfft, ngfft, 0, &!nhatgrdim

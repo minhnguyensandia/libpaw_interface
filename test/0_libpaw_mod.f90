@@ -11,8 +11,6 @@ module libpaw_mod
     
       !In practice, this part will be obtained from
       !the program calling libpaw_interface
-      integer :: nspden = 1, nsppol = 1 !number of spin components for density and wavefunctions
-      !for normal nspin = 1,2 calculations, nsppol is set to be same as nspden
       real*8  :: spinat(3,1) = 0.0 !no atomic magnetization for now
 
       type(paw_setup_t)        :: pawsetup

@@ -1,4 +1,4 @@
-subroutine get_dij(natom,ntypat,ixc,xclevel,ngfft,ngfftdg,xred,ucvol,gprimd)
+subroutine get_dij(natom,ntypat,ixc,xclevel,nfft,nspden,xred,ucvol,gprimd,vtrial,vxc)
     use libpaw_mod
     use m_paw_denpot
     use m_pawdij
@@ -7,11 +7,10 @@ subroutine get_dij(natom,ntypat,ixc,xclevel,ngfft,ngfftdg,xred,ucvol,gprimd)
 
     real*8  :: compch_sph, epaw, epawdc
     real*8  :: nucdipmom(3,natom), qphon(3)
-    integer :: nfft
-    real*8, allocatable :: vtrial(:,:), vxc(:,:)
+    real*8  :: vtrial(cplex*nfft,nspden),vxc(cplex*nfft,nspden)
 
     integer :: natom,ntypat,ixc,xclevel
-    integer :: ngfft(3),ngfftdg(3)
+    integer :: nfft, nspden
     real*8  :: xred(3,natom),ucvol,gprimd(3,3)
 
     write(*,*) '4. Generating dij from on-site rhoij, v_ks and v_xc'
@@ -29,14 +28,6 @@ subroutine get_dij(natom,ntypat,ixc,xclevel,ngfft,ngfftdg,xred,ucvol,gprimd)
     
     !write(21,*) 'epaw',epaw
     !write(21,*) 'epawdc',epawdc
-
-    nfft = ngfftdg(1) * ngfftdg(2) * ngfftdg(3)
-    allocate(vtrial(cplex*nfft,nspden),vxc(cplex*nfft,nspden))
-
-    open(unit=10,file='veff')
-    read(10,*) vtrial
-    read(10,*) vxc
-    close(10)
 
     call pawdij(cplex, 0, gprimd, 0, natom, natom, nfft, nfft, nspden, ntypat, & !enunit, ipert
         & paw_an, paw_ij, pawang, pawfgrtab, 0, pawrad, pawrhoij, 0, pawtab, & !pawprtvol, pawspnorb
