@@ -1,21 +1,5 @@
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
-if(DEFINED ENV{MKLROOT} AND NOT DEFINED MKLROOT)
-    set(MKLROOT "$ENV{MKLROOT}")
-endif()
-
-if(MKLROOT)
-  find_package(IntelMKL REQUIRED)
-  add_definitions(-D__MKL)
-  include_directories(${MKL_INCLUDE_DIRS} ${MKL_INCLUDE_DIRS}/fftw)
-endif()
-
-find_package(Threads REQUIRED)
-find_package(OpenMP REQUIRED)
-set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_CXX_FLAGS}")
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-add_link_options(${OpenMP_CXX_LIBRARIES})
-
 add_library(libpaw_mod OBJECT
     0_libpaw_mod.f90)
 target_include_directories(libpaw_mod PUBLIC ${PROJECT_BINARY_DIR})
