@@ -80,6 +80,6 @@ subroutine fortran_main(ecut,ecutpaw,gmet,rprimd,gprimd,ucvol, &
     read(10,*) vxc
     close(10)
 
-    call get_dij(natom,ntypat,ixc,xclevel,nfft,nspden,xred,ucvol,gprimd,vtrial,vxc)
+    call calculate_dij(natom,ntypat,ixc,xclevel,nfft,nspden,xred,ucvol,gprimd,vtrial,vxc)
 
 end subroutine

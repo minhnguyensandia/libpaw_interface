@@ -1,4 +1,4 @@
-subroutine get_dij(natom,ntypat,ixc,xclevel,nfft,nspden,xred,ucvol,gprimd,vtrial,vxc)
+subroutine calculate_dij(natom,ntypat,ixc,xclevel,nfft,nspden,xred,ucvol,gprimd,vtrial,vxc)
     use libpaw_mod
     use m_paw_denpot
     use m_pawdij
@@ -33,4 +33,13 @@ subroutine get_dij(natom,ntypat,ixc,xclevel,nfft,nspden,xred,ucvol,gprimd,vtrial
         & paw_an, paw_ij, pawang, pawfgrtab, 0, pawrad, pawrhoij, 0, pawtab, & !pawprtvol, pawspnorb
         & xcdev, qphon, 1d0, ucvol, 0d0, vtrial, vxc, xred) !spnorbscl, charge
 
+end subroutine
+
+subroutine get_dij(iatom,size_dij,nspden,dij)
+    use libpaw_mod
+    implicit none
+    integer :: iatom, size_dij, nspden
+    real*8  :: dij(size_dij,nspden)
+
+    dij = paw_ij(iatom)%dij
 end subroutine
