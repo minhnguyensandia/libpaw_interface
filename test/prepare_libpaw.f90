@@ -37,6 +37,10 @@ subroutine prepare_libpaw(ecut,ecutpaw,gmet,rprimd,gprimd,ucvol,ngfft,ngfftdg, &
         & paw_an(natom), pawfgrtab(natom))
     allocate(atindx(natom),atindx1(natom))
 
+    ! not supporting dftu for now!
+    lexexch = 0
+    lpawu = 0
+
     ! Process atomic information
     call map_atom_index(ntypat,natom,typat)
 
