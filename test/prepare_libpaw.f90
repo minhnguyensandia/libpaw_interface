@@ -135,9 +135,6 @@ subroutine prepare_libpaw(ecut,ecutpaw,gmet,rprimd,gprimd,ucvol,ngfft,ngfftdg, &
     !    write(16,*) pawfgrtab(ia)%gylm
     !    write(16,*)
     !enddo
-
-    close(10)
-    close(11)
 contains
     subroutine generate_qgrid(gsqcut,qgrid,mqgrid)
         real*8  :: gsqcut
