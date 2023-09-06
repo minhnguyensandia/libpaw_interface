@@ -31,6 +31,4 @@ subroutine init_rho(nspden,ngfftdg,nfft,natom,ntypat,rprimd,gprimd,gmet,ucvol,xr
     call initro(atindx,densty,gmet,gsqcutdg,1,mgrid,mqgrid,natom,nattyp,&
         nfft,ngfftdg,nspden,ntypat,pawtab,ph1d,qgrid_vl,rho,spinat_in,ucvol,1,zion,znucl,&
         ngfftdg(2),fftn2_distrib,ffti2_local,ngfftdg(3),fftn3_distrib,ffti3_local)
-
-    write(101,*) 'rho',rho
 end subroutine
