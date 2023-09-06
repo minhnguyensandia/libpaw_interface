@@ -32,7 +32,7 @@ subroutine prepare_libpaw(ecut,ecutpaw,gmet,rprimd,gprimd,ucvol,ngfft,ngfftdg, &
     hyb_mixing = 0.0
     hyb_range_fock = 0.0
 
-    allocate(znucl(ntypat), nattyp(ntypat), lexexch(ntypat), lpawu(ntypat), l_size_atm(natom))
+    allocate(zion(ntypat),znucl(ntypat), nattyp(ntypat), lexexch(ntypat), lpawu(ntypat), l_size_atm(natom))
     allocate(pawrad(ntypat), pawtab(ntypat), pawrhoij(natom), paw_ij(natom), &
         & paw_an(natom), pawfgrtab(natom))
     allocate(atindx(natom),atindx1(natom))
@@ -64,7 +64,7 @@ subroutine prepare_libpaw(ecut,ecutpaw,gmet,rprimd,gprimd,ucvol,ngfft,ngfftdg, &
         call rdpawpsxml(filename_list(it), pawsetup)
         call rdpawpsxml(filename_list(it), paw_setuploc)
         call pawpsp_read_header_xml(lloc, lmax, pspcod, pspxc,&
-            & pawsetup, r2well, zion, znucl(it))
+            & pawsetup, r2well, zion(it), znucl(it))
         call pawpsp_read_pawheader(pawpsp_header%basis_size,&
             &   lmax,pawpsp_header%lmn_size,&
             &   pawpsp_header%l_size, pawpsp_header%mesh_size,&
@@ -76,7 +76,7 @@ subroutine prepare_libpaw(ecut,ecutpaw,gmet,rprimd,gprimd,ucvol,ngfft,ngfftdg, &
         call pawpsp_17in(epsatm, ffspl, icoulomb, ipsp, hyb_mixing, ixc, lmax,&
                 &       lnmax, pawpsp_header%mesh_size, mqgrid, mqgrid, pawpsp_header,&
                 &       pawrad(it), pawtab(it), xcdev, qgrid_ff, qgrid_vl, usewvl, usexcnhat,&
-                &       vlspl(:,:,it), xcccrc, xclevel, denpos, zion, znucl(it))
+                &       vlspl(:,:,it), xcccrc, xclevel, denpos, zion(it), znucl(it))
         call paw_setup_free(pawsetup)
         call paw_setup_free(paw_setuploc)
 

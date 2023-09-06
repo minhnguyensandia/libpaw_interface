@@ -10,6 +10,7 @@ add_library(libpaw_interface_files OBJECT
     get_dij.f90
     get_nhat.f90
     get_vloc_ncoret.f90
+    init_rho.f90
     map_atom_index.f90
     prepare_libpaw.f90
     set_rhoij.f90

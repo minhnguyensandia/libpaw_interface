@@ -27,12 +27,12 @@ module libpaw_mod
       integer, allocatable :: l_size_atm(:), nattyp(:)
       integer, allocatable :: lexexch(:), lpawu(:) !no exact exchange, no dft+u
 
-      real*8,  allocatable :: znucl(:)
+      real*8,  allocatable :: znucl(:), zion(:)
       integer, allocatable :: atindx1(:),atindx(:)
 
       integer :: lloc, lmax, pspcod, pspxc
       real*8  :: hyb_mixing, hyb_range_fock
-      real*8  :: r2well, zion
+      real*8  :: r2well
 
       integer :: pawspnorb = 0, nspinor = 1 !not considering soc yet
       

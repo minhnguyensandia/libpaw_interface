@@ -15,7 +15,8 @@ target_include_directories(fft_level2 PUBLIC ${PROJECT_SOURCE_DIR} ${PROJECT_BIN
 add_dependencies(fft_level2 fft_level1)
 
 add_library(fft_level3 OBJECT
-    m_atm2fft.F90)
+    m_atm2fft.F90
+    m_mkrho.F90)
 
 target_include_directories(fft_level3 PUBLIC ${PROJECT_SOURCE_DIR} ${PROJECT_BINARY_DIR})
 add_dependencies(fft_level3 fft_level2 paw_level1)  
