@@ -202,7 +202,7 @@ end function atom_length
 !! SOURCE
 
 subroutine initro(atindx,densty,gmet,gsqcut,izero,mgfft,mqgrid,natom,nattyp,&
-&  nfft,ngfft,nspden,ntypat,pawtab,ph1d,qgrid,rhor,spinat,ucvol,usepaw,zion,znucl,&
+&  nfft,ngfft,nspden,ntypat,ph1d,qgrid,rhor,spinat,ucvol,usepaw,zion,znucl,&
 &  n2_in,fftn2_distrib,ffti2_local,n3_in,fftn3_distrib,ffti3_local)
 
 !Arguments ------------------------------------
@@ -216,15 +216,12 @@ subroutine initro(atindx,densty,gmet,gsqcut,izero,mgfft,mqgrid,natom,nattyp,&
  real(dp),intent(in) :: qgrid(mqgrid),spinat(3,natom),zion(ntypat)
  real(dp),intent(in) :: znucl(ntypat)
  real(dp),intent(out) :: rhor(nfft,nspden)
- type(pawtab_type),intent(in) :: pawtab(ntypat*usepaw)
 
  integer,intent(in) :: n2_in
  integer,intent(in) :: fftn2_distrib(n2_in),ffti2_local(n2_in)
 
  integer,intent(in) :: n3_in
  integer,intent(in) :: fftn3_distrib(n3_in),ffti3_local(n3_in)
-
- real(dp) :: rhog(2,nfft)
 
 !Local variables-------------------------------
 !The decay lengths should be optimized element by element, and even pseudopotential by pseudopotential.
@@ -240,6 +237,7 @@ subroutine initro(atindx,densty,gmet,gsqcut,izero,mgfft,mqgrid,natom,nattyp,&
 !arrays
  !integer, ABI_CONTIGUOUS pointer :: fftn2_distrib(:),ffti2_local(:),fftn3_distrib(:),ffti3_local(:)
  real(dp),allocatable :: length(:),spinat_indx(:,:)
+ real(dp),allocatable :: rhog(:,:)
 
 ! *************************************************************************
 
@@ -255,6 +253,8 @@ subroutine initro(atindx,densty,gmet,gsqcut,izero,mgfft,mqgrid,natom,nattyp,&
  me_fft = xpaw_mpi_comm_rank(xpaw_mpi_world)
  nproc_fft = xpaw_mpi_comm_size(xpaw_mpi_world)
  LIBPAW_ALLOCATE(spinat_indx,(3,natom))
+
+ LIBPAW_ALLOCATE(rhog,(2,nfft))
 
 !Transfer the spinat array to an array in which the atoms have the proper order, type by type.
  do ia=1,natom
@@ -391,6 +391,7 @@ subroutine initro(atindx,densty,gmet,gsqcut,izero,mgfft,mqgrid,natom,nattyp,&
 
  LIBPAW_DEALLOCATE(length)
  LIBPAW_DEALLOCATE(spinat_indx)
+ LIBPAW_DEALLOCATE(rhog)
 
  contains
 
