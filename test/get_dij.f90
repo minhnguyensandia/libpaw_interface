@@ -9,7 +9,7 @@ subroutine calculate_dij(natom,ntypat,ixc,xclevel,nfft,nspden,xred,ucvol,gprimd,
     real*8  :: nucdipmom(3,natom), qphon(3)
     real*8  :: vtrial(cplex*nfft,nspden),vxc(cplex*nfft,nspden)
 
-    integer :: natom,ntypat,ixc,xclevel
+    integer :: natom,ntypat,ixc,xclevel,iatom
     integer :: nfft, nspden
     real*8  :: xred(3,natom),ucvol,gprimd(3,3)
 
@@ -29,6 +29,9 @@ subroutine calculate_dij(natom,ntypat,ixc,xclevel,nfft,nspden,xred,ucvol,gprimd,
     !write(21,*) 'epaw',epaw
     !write(21,*) 'epawdc',epawdc
 
+    do iatom = 1,natom
+        paw_ij(iatom)%has_dij=1 !reset the flag so dij will be calculated again
+    enddo
     call pawdij(cplex, 0, gprimd, 0, natom, natom, nfft, nfft, nspden, ntypat, & !enunit, ipert
         & paw_an, paw_ij, pawang, pawfgrtab, 0, pawrad, pawrhoij, 0, pawtab, & !pawprtvol, pawspnorb
         & xcdev, qphon, 1d0, ucvol, 0d0, vtrial, vxc, xred) !spnorbscl, charge
