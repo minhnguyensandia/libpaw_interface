@@ -46,3 +46,12 @@ subroutine get_dij(iatom,size_dij,nspden,dij)
 
     dij = paw_ij(iatom)%dij
 end subroutine
+
+subroutine get_sij(itype,size_dij,sij)
+    use libpaw_mod
+    implicit none
+    integer :: itype,size_dij
+    real*8  :: sij(size_dij)
+
+    sij = pawtab(itype)%sij
+end subroutine
