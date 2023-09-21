@@ -1,5 +1,19 @@
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
+if(DEFINED ENV{MKLROOT} AND NOT DEFINED MKLROOT)
+    set(MKLROOT "$ENV{MKLROOT}")
+endif()
+if(MKLROOT)
+  add_definitions(-D__MKL)
+  include_directories(${MKL_INCLUDE_DIRS} ${MKL_INCLUDE_DIRS}/fftw)
+  list(APPEND math_libs IntelMKL::MKL)
+else()
+  find_package(FFTW3 REQUIRED)
+  find_package(LAPACK REQUIRED)
+  include_directories(${FFTW3_INCLUDE_DIRS})
+  list(APPEND math_libs FFTW3::FFTW3 LAPACK::LAPACK)
+endif()
+
 add_library(libpaw_mod OBJECT
     0_libpaw_mod.f90)
 target_include_directories(libpaw_mod PUBLIC ${PROJECT_BINARY_DIR})
@@ -57,7 +71,7 @@ target_link_directories(paw_lib PUBLIC
     ${PROJECT_BINARY_DIR}/abi_add_paw)
 target_link_libraries(paw_lib PUBLIC
     libpaw_interface
-    IntelMKL::MKL
+    ${math_libs}
     Threads::Threads
     OpenMP::OpenMP_CXX
     m
