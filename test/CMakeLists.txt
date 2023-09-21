@@ -12,6 +12,16 @@ else()
   find_package(LAPACK REQUIRED)
   include_directories(${FFTW3_INCLUDE_DIRS})
   list(APPEND math_libs FFTW3::FFTW3 LAPACK::LAPACK)
+
+  if(CMAKE_CXX_COMPILER_ID MATCHES GNU)
+    list(APPEND math_libs -lgfortran)
+  elseif(CMAKE_CXX_COMPILER_ID MATCHES Intel)
+    list(APPEND math_libs -lifcore)
+  elseif(CMAKE_CXX_COMPILER_ID MATCHES Clang)
+    list(APPEND math_libs -lgfortran)
+  else()
+    message(WARNING "Cannot find the correct library for Fortran.")
+  endif()
 endif()
 
 add_library(libpaw_mod OBJECT
@@ -74,5 +84,4 @@ target_link_libraries(paw_lib PUBLIC
     ${math_libs}
     Threads::Threads
     OpenMP::OpenMP_CXX
-    m
-    -lifcore)
+    m)
