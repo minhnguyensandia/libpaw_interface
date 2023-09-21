@@ -140,12 +140,12 @@ subroutine sg2002_back(cplex,ndat,n1,n2,n3,nd1,nd2,nd3,nd1eff,nd2proc,nd3proc,op
 &    'ncache has to be enlarged to be able to hold at',ch10, &
 &    'least one 1-d FFT of each size even though this will',ch10,&
 &    'reduce the performance for shorter transform lengths'
-   ABI_ERROR(msg)
+   LIBPAW_ERROR(msg)
  end if
 
 ! check input
  if (nd1<n1 .or. nd2<n2 .or. nd3<n3) then
-   ABI_ERROR("nd1<n1 .or. nd2<n2 .or. nd3<n3")
+   LIBPAW_ERROR("nd1<n1 .or. nd2<n2 .or. nd3<n3")
  end if
 
  ! Effective n1 and n2 (complex-to-complex or real-to-complex)
@@ -420,12 +420,12 @@ subroutine sg2002_forw(cplex,ndat,n1,n2,n3,nd1,nd2,nd3,nd1eff,nd2proc,nd3proc,op
 &     'ncache has to be enlarged to be able to hold at',ch10, &
 &     'least one 1-d FFT of each size even though this will',ch10,&
 &     'reduce the performance for shorter transform lengths'
-   ABI_ERROR(msg)
+   LIBPAW_ERROR(msg)
  end if
 
  ! check input
  if (nd1<n1 .or. nd2<n2 .or. nd3<n3) then
-   ABI_ERROR("nd1<n1 .or. nd2<n2 .or. nd3<n3")
+   LIBPAW_ERROR("nd1<n1 .or. nd2<n2 .or. nd3<n3")
  end if
 
 !Effective n1 and n2 (complex-to-complex or real-to-complex)
@@ -745,7 +745,7 @@ subroutine ctrig(n,trig,after,before,now,isign,ic)
  write(std_out,*) 'VALUE OF',n,'NOT ALLOWED FOR FFT, ALLOWED VALUES ARE:'
 37 format(15(i5))
  write(std_out,37) (ifftdata(1,i),i=1,ndata)
- ABI_ERROR("Aborting now")
+ LIBPAW_ERROR("Aborting now")
 
 1000 continue
  after(1)=1
@@ -2286,7 +2286,7 @@ subroutine fftstp(mm,n1dfft,m,nn,n,zin,zout,trig,after,now,before,isign)
         enddo
 
         else
-          ABI_ERROR('error fftstp')
+          LIBPAW_ERROR('error fftstp')
         end if
 
 end subroutine fftstp

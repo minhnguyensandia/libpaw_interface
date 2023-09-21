@@ -115,7 +115,7 @@ subroutine initrhoij(cpxocc,lexexch,lpawu,my_natom,natom,nspden,nspinor,nsppol,&
  do itypat=1,ntypat
    if (lpawu(itypat)/=lexexch(itypat).and. lpawu(itypat)/=-1.and.lexexch(itypat)/=-1) then
      message = ' lpawu must be equal to lexexch !'
-     ABI_ERROR(message)
+     LIBPAW_ERROR(message)
    end if
  end do
 

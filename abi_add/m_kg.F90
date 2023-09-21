@@ -146,7 +146,7 @@ subroutine getcut(ecut,gmet,gsqcut,iboxcut,ngfft)
        'This situation might happen when optimizing the cell parameters.',ch10,&
        'Your starting geometry might be crazy.',ch10,&
        'See https://wiki.abinit.org/doku.php?id=howto:troubleshooting#incorrect_initial_geometry .'
-       ABI_ERROR(msg)
+       LIBPAW_ERROR(msg)
      end if
 
      if (boxcut>2.2_dp) then

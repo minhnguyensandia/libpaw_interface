@@ -896,7 +896,7 @@ subroutine pawnhatfr(ider,idir,ipert,my_natom,natom,nspden,ntypat,&
                  end do
                end if
                if (ider==1) then
-                 ABI_ERROR("nhatgr not implemented for strain perturbationxs")
+                 LIBPAW_ERROR("nhatgr not implemented for strain perturbationxs")
 !                 do ic=1,nfgd
 !                   do nu=1,6
 !                     do mu=1,6

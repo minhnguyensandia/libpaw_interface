@@ -258,7 +258,7 @@ subroutine pawinit(effmass_free,gnt_option,gsqcut_eff,hyb_range_fock,lcutdens,lm
 &     'formulation of XC [using compensation charge in XC or not] !',ch10,&
 &     'Action: change at least one of your atomic data (psp) file',ch10,&
 &     '        or use usexcnhat keyword in input file.'
-     ABI_ERROR(message)
+     LIBPAW_ERROR(message)
    end if
 
 !  ==================================================
@@ -272,7 +272,7 @@ subroutine pawinit(effmass_free,gnt_option,gsqcut_eff,hyb_range_fock,lcutdens,lm
      LIBPAW_ALLOCATE(pawtab(itypat)%shapefunc,(mesh_size,l_size))
    else if (.not.allocated(pawtab(itypat)%shapefunc))  then
      message='shapefunc should be allocated with shape_type=-1'
-     ABI_ERROR(message)
+     LIBPAW_ERROR(message)
    end if
    if (allocated(pawtab(itypat)%gnorm))  then
      LIBPAW_DEALLOCATE(pawtab(itypat)%gnorm)
