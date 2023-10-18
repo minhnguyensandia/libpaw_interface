@@ -1,4 +1,4 @@
-subroutine calculate_dij(natom,ntypat,ixc,xclevel,nfft,nspden,xred,ucvol,gprimd,vtrial,vxc)
+subroutine calculate_dij(natom,ntypat,ixc,xclevel,nfft,nspden,xred,ucvol,gprimd,vtrial,vxc,epawdc)
     use libpaw_mod
     use m_paw_denpot
     use m_pawdij

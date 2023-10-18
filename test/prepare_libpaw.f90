@@ -1,5 +1,5 @@
 subroutine prepare_libpaw(ecut,ecutpaw,gmet,rprimd,gprimd,ucvol,ngfft,ngfftdg, &
-        natom,ntypat,typat,xred,ixc,xclevel,filename_list,nspden,nsppol)
+        natom,ntypat,typat,xred,ixc,xclevel,filename_list,nspden,nsppol,epsatm)
     use m_pawpsp
     use m_pawxmlps
     use m_paw_init
@@ -24,6 +24,7 @@ subroutine prepare_libpaw(ecut,ecutpaw,gmet,rprimd,gprimd,ucvol,ngfft,ngfftdg, &
     integer :: ntypat, natom
     integer :: typat(natom)
     real*8  :: xred(3,natom)
+    real*8  :: epsatm(ntypat)
     integer :: nspden,nsppol!number of spin components for density and wavefunctions
     !for normal nspin = 1,2 calculations, nsppol is set to be same as nspden
 
@@ -73,7 +74,7 @@ subroutine prepare_libpaw(ecut,ecutpaw,gmet,rprimd,gprimd,ucvol,ngfft,ngfftdg, &
 
         ! Process onsite information
         call pawtab_set_flags(pawtab,has_tvale=1,has_vhnzc=1,has_vhtnzc=1)
-        call pawpsp_17in(epsatm, ffspl, icoulomb, ipsp, hyb_mixing, ixc, lmax,&
+        call pawpsp_17in(epsatm(it), ffspl, icoulomb, ipsp, hyb_mixing, ixc, lmax,&
                 &       lnmax, pawpsp_header%mesh_size, mqgrid, mqgrid, pawpsp_header,&
                 &       pawrad(it), pawtab(it), xcdev, qgrid_ff, qgrid_vl, usewvl, usexcnhat,&
                 &       vlspl(:,:,it), xcccrc, xclevel, denpos, zion(it), znucl(it))

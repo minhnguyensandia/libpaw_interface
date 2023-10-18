@@ -43,7 +43,6 @@ module libpaw_mod
       integer, allocatable :: fftn3_distrib(:), ffti3_local(:)
       integer, allocatable :: fftn2_distrib(:), ffti2_local(:) !For FFT parallelization
 
-      real*8  :: epsatm
       real*8  :: xcccrc
 
       ! Some default values in ABINIT
