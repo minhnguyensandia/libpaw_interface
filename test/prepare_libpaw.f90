@@ -73,7 +73,8 @@ subroutine prepare_libpaw(ecut,ecutpaw,gmet,rprimd,gprimd,ucvol,ngfft,ngfftdg, &
             &   pawpsp_header%rpaw, pawpsp_header%rshp, pawpsp_header%shape_type)
 
         ! Process onsite information
-        call pawtab_set_flags(pawtab,has_tvale=1,has_vhnzc=1,has_vhtnzc=1)
+        call pawtab_nullify(pawtab(it))
+        call pawtab_set_flags(pawtab(it),has_tvale=1,has_vhnzc=1,has_vhtnzc=1)
         call pawpsp_17in(epsatm(it), ffspl, icoulomb, ipsp, hyb_mixing, ixc, lmax,&
                 &       lnmax, pawpsp_header%mesh_size, mqgrid, mqgrid, pawpsp_header,&
                 &       pawrad(it), pawtab(it), xcdev, qgrid_ff, qgrid_vl, usewvl, usexcnhat,&
