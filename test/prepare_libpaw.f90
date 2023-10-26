@@ -26,6 +26,7 @@ subroutine prepare_libpaw(ecut,ecutpaw,gmet,rprimd,gprimd,ucvol,ngfft,ngfftdg, &
     real*8  :: xred(3,natom)
     real*8  :: epsatm(ntypat)
     integer :: nspden,nsppol!number of spin components for density and wavefunctions
+    integer :: llmax
     !for normal nspin = 1,2 calculations, nsppol is set to be same as nspden
 
     character(len=264) :: filename_list(ntypat)
@@ -60,6 +61,8 @@ subroutine prepare_libpaw(ecut,ecutpaw,gmet,rprimd,gprimd,ucvol,ngfft,ngfftdg, &
 
     allocate(ffspl(mqgrid,2,lnmax), vlspl(mqgrid,2,ntypat))
 
+    llmax = 0
+
     do it = 1, ntypat
         ! Read paw input files
         call rdpawpsxml(filename_list(it), pawsetup)
@@ -83,6 +86,8 @@ subroutine prepare_libpaw(ecut,ecutpaw,gmet,rprimd,gprimd,ucvol,ngfft,ngfftdg, &
         call paw_setup_free(paw_setuploc)
 
         !write(13,*) 'dij0',pawtab(1)%dij0
+
+        llmax = max(lmax,llmax)
     enddo
 
     do ia = 1, natom
@@ -90,7 +95,7 @@ subroutine prepare_libpaw(ecut,ecutpaw,gmet,rprimd,gprimd,ucvol,ngfft,ngfftdg, &
         l_size_atm(ia) = pawtab(it)%l_size
     enddo
 
-    mpsang = lmax + 1
+    mpsang = llmax + 1
     call pawinit(effmass_free, gnt_option,gsqcut_eff,hyb_range_fock,lcutdens,lmix,mpsang,nphi,nsym,ntheta,&
         &     pawang,pawrad,pawspnorb,pawtab,xcdev,xclevel,usepotzero)
     !write(13,*) 'eijkl',pawtab(1)%eijkl
