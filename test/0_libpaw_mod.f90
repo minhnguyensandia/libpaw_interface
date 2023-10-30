@@ -47,7 +47,7 @@ module libpaw_mod
 
       ! Some default values in ABINIT
       integer :: iboxcut = 0
-      integer :: mqgrid = 3001, lnmax = 4, ipsp = 1
+      integer :: mqgrid = 3001, lnmax = 6, ipsp = 1
       integer :: usexcnhat = 0, xcdev = 1, usewvl = 0, icoulomb = 0, usepotzero = 0
       real*8  :: denpos = 1d-14
       integer :: gnt_option = 1, lcutdens = 10, lmix = 10
