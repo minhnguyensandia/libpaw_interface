@@ -28,7 +28,7 @@ subroutine init_rho(nspden,ngfftdg,nfft,natom,ntypat,rprimd,gprimd,gmet,ucvol,xr
 
     call getph(atindx,natom,ngfftdg(1),ngfftdg(2),ngfftdg(3),ph1d,xred)
 
-    call initro(atindx,densty,gmet,gsqcutdg,1,mgrid,mqgrid,natom,nattyp,&
+    call initro(pawtab,atindx,densty,gmet,gsqcutdg,1,mgrid,mqgrid,natom,nattyp,&
         nfft,ngfftdg,nspden,ntypat,ph1d,qgrid_vl,rho,spinat_in,ucvol,1,zion,znucl,&
         ngfftdg(2),fftn2_distrib,ffti2_local,ngfftdg(3),fftn3_distrib,ffti3_local)
 end subroutine

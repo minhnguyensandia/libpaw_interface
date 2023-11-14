@@ -201,43 +201,42 @@ end function atom_length
 !!
 !! SOURCE
 
-subroutine initro(atindx,densty,gmet,gsqcut,izero,mgfft,mqgrid,natom,nattyp,&
+subroutine initro(pawtab,atindx,densty,gmet,gsqcut,izero,mgfft,mqgrid,natom,nattyp,&
 &  nfft,ngfft,nspden,ntypat,ph1d,qgrid,rhor,spinat,ucvol,usepaw,zion,znucl,&
 &  n2_in,fftn2_distrib,ffti2_local,n3_in,fftn3_distrib,ffti3_local)
+
 
 !Arguments ------------------------------------
 !scalars
  integer,intent(in) :: izero,mgfft,mqgrid,natom,nfft,nspden,ntypat
  integer,intent(in) :: usepaw
  real(dp),intent(in) :: gsqcut,ucvol
+ !type(mpi_type),intent(in) :: mpi_enreg
 !arrays
  integer,intent(in) :: atindx(natom),nattyp(ntypat),ngfft(3)
  real(dp),intent(in) :: densty(ntypat,4),gmet(3,3),ph1d(2,3*(2*mgfft+1)*natom)
  real(dp),intent(in) :: qgrid(mqgrid),spinat(3,natom),zion(ntypat)
  real(dp),intent(in) :: znucl(ntypat)
  real(dp),intent(out) :: rhor(nfft,nspden)
-
- integer,intent(in) :: n2_in
- integer,intent(in) :: fftn2_distrib(n2_in),ffti2_local(n2_in)
-
- integer,intent(in) :: n3_in
- integer,intent(in) :: fftn3_distrib(n3_in),ffti3_local(n3_in)
+ real(dp) :: rhog(2,nfft)
+ type(pawtab_type),intent(in) :: pawtab(ntypat*usepaw)
 
 !Local variables-------------------------------
 !The decay lengths should be optimized element by element, and even pseudopotential by pseudopotential.
 !scalars
  integer,parameter :: im=2,re=1
  integer :: i1,i2,i3,ia,ia1,ia2,id1,id2,id3,ig1,ig2,ig3,ii,ispden
- integer :: itypat,jj,jtemp,me_fft,n1,n2,n3,nproc_fft
+ integer :: itypat,jj,jtemp,me_fft,n1,n2,n3
  real(dp),parameter :: tolfix=1.000000001_dp
  real(dp) :: aa,alf2pi2,bb,cc,cutoff,dd,diff,dq,dq2div6,dqm1,fact,fact0,gmag
  real(dp) :: gsquar,rhoat,sfi,sfr
  real(dp) :: xnorm
  character(len=500) :: message
 !arrays
- !integer, ABI_CONTIGUOUS pointer :: fftn2_distrib(:),ffti2_local(:),fftn3_distrib(:),ffti3_local(:)
- real(dp),allocatable :: length(:),spinat_indx(:,:)
- real(dp),allocatable :: rhog(:,:)
+ integer :: n2_in,n3_in
+ integer, intent(in) :: fftn2_distrib(n2_in),ffti2_local(n2_in),fftn3_distrib(n3_in),ffti3_local(n3_in)
+ real(dp),allocatable :: length(:),spinat_indx(:,:),work(:)
+ logical,allocatable :: use_gaussian(:)
 
 ! *************************************************************************
 
@@ -251,10 +250,8 @@ subroutine initro(atindx,densty,gmet,gsqcut,izero,mgfft,mqgrid,natom,nattyp,&
  n2=ngfft(2)
  n3=ngfft(3)
  me_fft = xpaw_mpi_comm_rank(xpaw_mpi_world)
- nproc_fft = xpaw_mpi_comm_size(xpaw_mpi_world)
+ LIBPAW_ALLOCATE(work,(nfft))
  LIBPAW_ALLOCATE(spinat_indx,(3,natom))
-
- LIBPAW_ALLOCATE(rhog,(2,nfft))
 
 !Transfer the spinat array to an array in which the atoms have the proper order, type by type.
  do ia=1,natom
@@ -285,16 +282,32 @@ subroutine initro(atindx,densty,gmet,gsqcut,izero,mgfft,mqgrid,natom,nattyp,&
 
 !Compute the decay length of each type of atom
  LIBPAW_ALLOCATE(length,(ntypat))
-
+ LIBPAW_ALLOCATE(use_gaussian,(ntypat))
+ jtemp=0
  do itypat=1,ntypat
 
-    length(itypat) = atom_length(densty(itypat,1),zion(itypat),znucl(itypat))
-    write(message,'(a,i3,a,f12.4,a,a,a,f12.4,a,i3,a,es12.4,a)' )&
+   use_gaussian(itypat)=.true.
+   use_gaussian(itypat)=(pawtab(itypat)%has_tvale==0)
+   if (.not.use_gaussian(itypat)) jtemp=jtemp+1
+
+   if (use_gaussian(itypat)) then
+     length(itypat) = atom_length(densty(itypat,1),zion(itypat),znucl(itypat))
+     write(message,'(a,i3,a,f12.4,a,a,a,f12.4,a,i3,a,es12.4,a)' )&
 &     ' initro: for itypat=',itypat,', take decay length=',length(itypat),',',ch10,&
 &     ' initro: indeed, coreel=',znucl(itypat)-zion(itypat),', nval=',int(zion(itypat)),' and densty=',densty(itypat,1),'.'
-    call wrtout(std_out,message,'COLL')
+     call wrtout(std_out,message,'COLL')
+   else
+     write(message,"(a,i3,a)")' initro: for itypat=',itypat,", take pseudo charge density from pp file"
+     call wrtout(std_out,message,"COLL")
+   end if
 
  end do
+
+ if (jtemp>0) then
+   dq=(qgrid(mqgrid)-qgrid(1))/dble(mqgrid-1)
+   dqm1=1.0_dp/dq
+   dq2div6=dq**2/6.0_dp
+ end if
 
  cutoff=gsqcut*tolfix
  xnorm=1.0_dp/ucvol
@@ -302,6 +315,8 @@ subroutine initro(atindx,densty,gmet,gsqcut,izero,mgfft,mqgrid,natom,nattyp,&
  id1=n1/2+2
  id2=n2/2+2
  id3=n3/2+2
+
+ if(nspden /= 4) then
 
    do ispden=nspden,1,-1
 !    This loop overs spins will actually be as follows :
@@ -315,7 +330,7 @@ subroutine initro(atindx,densty,gmet,gsqcut,izero,mgfft,mqgrid,natom,nattyp,&
      ia1=1
      do itypat=1,ntypat
 
-       alf2pi2=(two_pi*length(itypat))**2
+       if (use_gaussian(itypat)) alf2pi2=(two_pi*length(itypat))**2
 
 !      ia1,ia2 sets range of loop over atoms:
        ia2=ia1+nattyp(itypat)-1
@@ -347,10 +362,12 @@ subroutine initro(atindx,densty,gmet,gsqcut,izero,mgfft,mqgrid,natom,nattyp,&
                      sfr=sfr+phre_ini(ig1,ig2,ig3,ia)
                      sfi=sfi-phimag_ini(ig1,ig2,ig3,ia)
                    end do
-                    sfr=sfr*zion(itypat)
-                    sfi=sfi*zion(itypat)
+                   if (use_gaussian(itypat)) then
+                     sfr=sfr*zion(itypat)
+                     sfi=sfi*zion(itypat)
+                   end if
                  else
-                   fact0=half;
+                   fact0=half;if (.not.use_gaussian(itypat)) fact0=half/zion(itypat)
                    do ia=ia1,ia2
 !                    Here, take care only of the z component
                      fact=fact0*(zion(itypat)+spinat_indx(3,ia))
@@ -360,10 +377,29 @@ subroutine initro(atindx,densty,gmet,gsqcut,izero,mgfft,mqgrid,natom,nattyp,&
                  end if
 
 !                Charge density integrating to one
+                 if (use_gaussian(itypat)) then
                    rhoat=xnorm*exp(-gsquar*alf2pi2)
 !                  Multiply structure factor times rhoat (atomic density in reciprocal space)
                    rhog(re,ii)=rhog(re,ii)+sfr*rhoat
                    rhog(im,ii)=rhog(im,ii)+sfi*rhoat
+                 else
+                   gmag=sqrt(gsquar)
+                   jj=1+int(gmag*dqm1)
+                   diff=gmag-qgrid(jj)
+                   bb = diff*dqm1
+                   aa = one-bb
+                   cc = aa*(aa**2-one)*dq2div6
+                   dd = bb*(bb**2-one)*dq2div6
+                   if (usepaw == 1) then
+                     rhoat=(aa*pawtab(itypat)%tvalespl(jj,1)+bb*pawtab(itypat)%tvalespl(jj+1,1)+&
+&                     cc*pawtab(itypat)%tvalespl(jj,2)+dd*pawtab(itypat)%tvalespl(jj+1,2)) *xnorm
+                   else
+                     ABI_BUG('Initialization of density is non consistent.')
+                   end if
+!                  Multiply structure factor times rhoat (atomic density in reciprocal space)
+                   rhog(re,ii)=rhog(re,ii)+sfr*rhoat
+                   rhog(im,ii)=rhog(im,ii)+sfi*rhoat
+                 end if
 
                else
                  jtemp=jtemp+1
@@ -385,14 +421,129 @@ subroutine initro(atindx,densty,gmet,gsqcut,izero,mgfft,mqgrid,natom,nattyp,&
 
 !    Note, we end with ispden=1, so that rhog contains the total density
      call sg2002_mpifourdp(1,nfft,ngfft,1,1,& !cplx = 1; ndat = 1;isign = 1, means G -> r
-        fftn2_distrib,ffti2_local,fftn3_distrib,ffti3_local,rhog,rhor(:,ispden),xpaw_mpi_world)
-     !rhor(:,ispden) = rhor(:,ispden)*xnorm
+       fftn2_distrib,ffti2_local,fftn3_distrib,ffti3_local,rhog,work,xpaw_mpi_world)
+     !call fourdp(1,rhog,work,1,mpi_enreg,nfft,1,ngfft,0)
+     rhor(:,ispden)=work(:)
    end do ! End loop on spins
 
- LIBPAW_DEALLOCATE(length)
- LIBPAW_DEALLOCATE(spinat_indx)
- LIBPAW_DEALLOCATE(rhog)
+ else if(nspden==4) then
+   do ispden=nspden,1,-1
+!    This loop overs spins will actually be as follows :
+!    ispden=2,3,4 for mx,my,mz
+!    ispden=1 for total spin (also valid for non-spin-polarized calculations)
+!    The reverse ispden order is chosen, in order to end up with
+!    rhog containing the proper total density.
 
+     rhog(:,:)=zero
+
+     ia1=1
+     do itypat=1,ntypat
+
+       if (use_gaussian(itypat)) alf2pi2=(two_pi*length(itypat))**2
+
+!      ia1,ia2 sets range of loop over atoms:
+       ia2=ia1+nattyp(itypat)-1
+       ii=0
+       jtemp=0
+       do i3=1,n3
+         ig3=i3-(i3/id3)*n3-1
+         do i2=1,n2
+           ig2=i2-(i2/id2)*n2-1
+           if (fftn2_distrib(i2)==me_fft) then
+             do i1=1,n1
+
+               ig1=i1-(i1/id1)*n1-1
+               ii=ii+1
+!              gsquar=gsq_ini(ig1,ig2,ig3)
+               gsquar=dble(ig1*ig1)*gmet(1,1)+dble(ig2*ig2)*gmet(2,2)+&
+&               dble(ig3*ig3)*gmet(3,3)+dble(2*ig1*ig2)*gmet(1,2)+&
+&               dble(2*ig2*ig3)*gmet(2,3)+dble(2*ig3*ig1)*gmet(3,1)
+
+!              Skip G**2 outside cutoff:
+               if (gsquar<=cutoff) then
+
+!                Assemble structure factor over all atoms of given type,
+!                also taking into account the spin-charge on each atom:
+                 sfr=zero;sfi=zero
+                 if(ispden==1)then
+                   do ia=ia1,ia2
+                     sfr=sfr+phre_ini(ig1,ig2,ig3,ia)
+                     sfi=sfi-phimag_ini(ig1,ig2,ig3,ia)
+                   end do
+                   if (use_gaussian(itypat)) then
+                     sfr=sfr*zion(itypat)
+                     sfi=sfi*zion(itypat)
+                   end if
+                 else
+                   fact0=one;if (.not.use_gaussian(itypat)) fact0=one/zion(itypat)
+                   do ia=ia1,ia2
+!                    Here, take care of the components of m
+                     fact=fact0*spinat_indx(ispden-1,ia)
+                     sfr=sfr+phre_ini(ig1,ig2,ig3,ia)*fact
+                     sfi=sfi-phimag_ini(ig1,ig2,ig3,ia)*fact
+                   end do
+                 end if
+
+!                Charge density integrating to one
+                 if (use_gaussian(itypat)) then
+                   rhoat=xnorm*exp(-gsquar*alf2pi2)
+                 else
+                   gmag=sqrt(gsquar)
+                   jj=1+int(gmag*dqm1)
+                   diff=gmag-qgrid(jj)
+                   bb = diff*dqm1
+                   aa = one-bb
+                   cc = aa*(aa**2-one)*dq2div6
+                   dd = bb*(bb**2-one)*dq2div6
+                   if (usepaw == 1) then
+                     rhoat=(aa*pawtab(itypat)%tvalespl(jj,1)+bb*pawtab(itypat)%tvalespl(jj+1,1)+&
+&                     cc*pawtab(itypat)%tvalespl(jj,2)+dd*pawtab(itypat)%tvalespl(jj+1,2)) *xnorm
+                   else
+                     ABI_BUG('Initialization of density is non consistent.')
+                   end if
+                 end if
+
+!                Multiply structure factor times rhoat (atomic density in reciprocal space)
+                 rhog(re,ii)=rhog(re,ii)+sfr*rhoat
+                 rhog(im,ii)=rhog(im,ii)+sfi*rhoat
+               else
+                 jtemp=jtemp+1
+               end if
+
+             end do ! End loop on i1
+           end if
+         end do ! End loop on i2
+       end do ! End loop on i3
+       ia1=ia2+1
+     end do ! End loop on type of atoms
+
+!    Set contribution of unbalanced components to zero
+     if (izero==1) then
+       call zerosym(rhog,2,n1,n2,n3,n2_in,fftn2_distrib,ffti2_local)
+     end if
+     !write(std_out,*)"initro: ispden, ucvol * rhog(:2,1)",ispden, ucvol * rhog(:2,1)
+
+!    Note, we end with ispden=1, so that rhog contains the total density
+     !call fourdp(1,rhog,work,1,mpi_enreg,nfft,1,ngfft,0)
+     call sg2002_mpifourdp(1,nfft,ngfft,1,1,& !cplx = 1; ndat = 1;isign = 1, means G -> r
+       fftn2_distrib,ffti2_local,fftn3_distrib,ffti3_local,rhog,work,xpaw_mpi_world)
+            
+     rhor(:,ispden)=work(:)
+
+   end do ! End loop on spins
+
+!  Non-collinear magnetism: avoid zero magnetization, because it produces numerical instabilities
+!    Add a small real to the magnetization
+   if (all(abs(spinat(:,:))<tol10)) rhor(:,4)=rhor(:,4)+tol14
+
+ end if ! nspden==4
+
+ LIBPAW_DEALLOCATE(length)
+ LIBPAW_DEALLOCATE(use_gaussian)
+ LIBPAW_DEALLOCATE(spinat_indx)
+ LIBPAW_DEALLOCATE(work)
+ write(33,*) 'initro'
+ write(33,*) rhor
  contains
 
 !Real and imaginary parts of phase.
