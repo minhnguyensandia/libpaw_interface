@@ -542,8 +542,7 @@ subroutine initro(pawtab,atindx,densty,gmet,gsqcut,izero,mgfft,mqgrid,natom,natt
  LIBPAW_DEALLOCATE(use_gaussian)
  LIBPAW_DEALLOCATE(spinat_indx)
  LIBPAW_DEALLOCATE(work)
- write(33,*) 'initro'
- write(33,*) rhor
+
  contains
 
 !Real and imaginary parts of phase.
