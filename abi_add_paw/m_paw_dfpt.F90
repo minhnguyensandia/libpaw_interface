@@ -442,43 +442,43 @@ subroutine pawgrnl(atindx1,dimnhat,grnl,gsqcut,mgfft,my_natom,natom,&
        end if
 
 !      --- Reduction in case of parallelization ---
-       if (paral_grid) then
-         if (ngrad>0) then
-           call xpaw_mpi_sum(prod,my_comm_grid,ier)
-         end if
-         if (ngradp>0) then
-           call xpaw_mpi_sum(prodp,my_comm_grid,ier)
-         end if
-         if (ngrad_nondiag>0.or.ngradp_nondiag>0) then
-           bufsiz=0;bufind=0
-           do jatm=1,natom
-             jtypat=typat(atindx1(jatm))
-             bufsiz=bufsiz+pawtab(jtypat)%lcut_size**2
-           end do
-           LIBPAW_ALLOCATE(buf,(ngrad_nondiag+ngradp_nondiag,bufsiz))
-           do jatm=1,natom
-             jtypat=typat(atindx1(jatm))
-             lm_sizej=pawtab(jtypat)%lcut_size**2
-             if (ngrad_nondiag> 0) buf(1:ngrad_nondiag,bufind+1:bufind+lm_sizej)= &
-&             prod_nondiag(jatm)%value(:,:)
-             if (ngradp_nondiag>0) buf(ngrad_nondiag+1:ngrad_nondiag+ngradp_nondiag, &
-&             bufind+1:bufind+lm_sizej)=prodp_nondiag(jatm)%value(:,:)
-             bufind=bufind+lm_sizej*(ngrad_nondiag+ngradp_nondiag)
-           end do
-           call xpaw_mpi_sum(buf,my_comm_grid,ier)
-           bufind=0
-           do jatm=1,natom
-             jtypat=typat(atindx1(jatm))
-             lm_sizej=pawtab(jtypat)%lcut_size**2
-             if (ngrad> 0) prod_nondiag(jatm)%value(:,:)= &
-&             buf(1:ngrad_nondiag,bufind+1:bufind+lm_sizej)
-             if (ngradp>0) prodp_nondiag(jatm)%value(:,:)= &
-&             buf(ngrad_nondiag+1:ngrad_nondiag+ngradp_nondiag,bufind+1:bufind+lm_sizej)
-             bufind=bufind+lm_sizej*(ngrad_nondiag+ngradp_nondiag)
-           end do
-           LIBPAW_DEALLOCATE(buf)
-         end if
-       end if
+!        if (paral_grid) then
+!          if (ngrad>0) then
+!            call xpaw_mpi_sum(prod,my_comm_grid,ier)
+!          end if
+!          if (ngradp>0) then
+!            call xpaw_mpi_sum(prodp,my_comm_grid,ier)
+!          end if
+!          if (ngrad_nondiag>0.or.ngradp_nondiag>0) then
+!            bufsiz=0;bufind=0
+!            do jatm=1,natom
+!              jtypat=typat(atindx1(jatm))
+!              bufsiz=bufsiz+pawtab(jtypat)%lcut_size**2
+!            end do
+!            LIBPAW_ALLOCATE(buf,(ngrad_nondiag+ngradp_nondiag,bufsiz))
+!            do jatm=1,natom
+!              jtypat=typat(atindx1(jatm))
+!              lm_sizej=pawtab(jtypat)%lcut_size**2
+!              if (ngrad_nondiag> 0) buf(1:ngrad_nondiag,bufind+1:bufind+lm_sizej)= &
+! &             prod_nondiag(jatm)%value(:,:)
+!              if (ngradp_nondiag>0) buf(ngrad_nondiag+1:ngrad_nondiag+ngradp_nondiag, &
+! &             bufind+1:bufind+lm_sizej)=prodp_nondiag(jatm)%value(:,:)
+!              bufind=bufind+lm_sizej*(ngrad_nondiag+ngradp_nondiag)
+!            end do
+!            call xpaw_mpi_sum(buf,my_comm_grid,ier)
+!            bufind=0
+!            do jatm=1,natom
+!              jtypat=typat(atindx1(jatm))
+!              lm_sizej=pawtab(jtypat)%lcut_size**2
+!              if (ngrad> 0) prod_nondiag(jatm)%value(:,:)= &
+! &             buf(1:ngrad_nondiag,bufind+1:bufind+lm_sizej)
+!              if (ngradp>0) prodp_nondiag(jatm)%value(:,:)= &
+! &             buf(ngrad_nondiag+1:ngrad_nondiag+ngradp_nondiag,bufind+1:bufind+lm_sizej)
+!              bufind=bufind+lm_sizej*(ngrad_nondiag+ngradp_nondiag)
+!            end do
+!            LIBPAW_DEALLOCATE(buf)
+!          end if
+!        end if
 
 !      ----------------------------------------------------------------
 !      Compute final sums (i.e. derivatives of Sum_ij[rho_ij.Intg{Qij.Vloc}]
@@ -585,23 +585,23 @@ subroutine pawgrnl(atindx1,dimnhat,grnl,gsqcut,mgfft,my_natom,natom,&
 !ENDDEBUG
 
 !Reduction in case of parallelisation over atoms
- if (paral_atom) then
-   bufsiz=3*natom*optgr+6*optstr
-   if (bufsiz>0) then
-     LIBPAW_ALLOCATE(buf1,(bufsiz))
-     if (optgr==1) buf1(1:3*natom)=hatgr(1:3*natom)
-     indx=optgr*3*natom
-     if (optstr==1) buf1(indx+1:indx+6)=hatstr(1:6)
-     indx=indx+optstr*6
+!  if (paral_atom) then
+!    bufsiz=3*natom*optgr+6*optstr
+!    if (bufsiz>0) then
+!      LIBPAW_ALLOCATE(buf1,(bufsiz))
+!      if (optgr==1) buf1(1:3*natom)=hatgr(1:3*natom)
+!      indx=optgr*3*natom
+!      if (optstr==1) buf1(indx+1:indx+6)=hatstr(1:6)
+!      indx=indx+optstr*6
 
-     call xpaw_mpi_sum(buf1,my_comm_atom,ier)
-     if (optgr==1) hatgr(1:3*natom)=buf1(1:3*natom)
-     indx=optgr*3*natom
-     if (optstr==1) hatstr(1:6)=buf1(indx+1:indx+6)
-     indx=indx+optstr*6
-     LIBPAW_DEALLOCATE(buf1)
-   end if
- end if
+!      call xpaw_mpi_sum(buf1,my_comm_atom,ier)
+!      if (optgr==1) hatgr(1:3*natom)=buf1(1:3*natom)
+!      indx=optgr*3*natom
+!      if (optstr==1) hatstr(1:6)=buf1(indx+1:indx+6)
+!      indx=indx+optstr*6
+!      LIBPAW_DEALLOCATE(buf1)
+!    end if
+!  end if
 
 !Deallocate additional memory
  LIBPAW_DEALLOCATE(grhat_tmp)
@@ -636,9 +636,9 @@ subroutine pawgrnl(atindx1,dimnhat,grnl,gsqcut,mgfft,my_natom,natom,&
      end do
    end if
    hatstr_diag=hatstr_diag*fact_ucvol
-   if (paral_grid) then
-     call xpaw_mpi_sum(hatstr_diag,my_comm_grid,ier)
-   end if
+  !  if (paral_grid) then
+  !    call xpaw_mpi_sum(hatstr_diag,my_comm_grid,ier)
+  !  end if
 
 !  Convert hat contribution
 
