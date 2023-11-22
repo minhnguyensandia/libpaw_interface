@@ -444,10 +444,10 @@ subroutine pawgrnl(atindx1,dimnhat,grnl,gsqcut,mgfft,my_natom,natom,&
 !      --- Reduction in case of parallelization ---
        if (paral_grid) then
          if (ngrad>0) then
-           call xmpi_sum(prod,my_comm_grid,ier)
+           call xpaw_mpi_sum(prod,my_comm_grid,ier)
          end if
          if (ngradp>0) then
-           call xmpi_sum(prodp,my_comm_grid,ier)
+           call xpaw_mpi_sum(prodp,my_comm_grid,ier)
          end if
          if (ngrad_nondiag>0.or.ngradp_nondiag>0) then
            bufsiz=0;bufind=0
@@ -465,7 +465,7 @@ subroutine pawgrnl(atindx1,dimnhat,grnl,gsqcut,mgfft,my_natom,natom,&
 &             bufind+1:bufind+lm_sizej)=prodp_nondiag(jatm)%value(:,:)
              bufind=bufind+lm_sizej*(ngrad_nondiag+ngradp_nondiag)
            end do
-           call xmpi_sum(buf,my_comm_grid,ier)
+           call xpaw_mpi_sum(buf,my_comm_grid,ier)
            bufind=0
            do jatm=1,natom
              jtypat=typat(atindx1(jatm))
@@ -637,7 +637,7 @@ subroutine pawgrnl(atindx1,dimnhat,grnl,gsqcut,mgfft,my_natom,natom,&
    end if
    hatstr_diag=hatstr_diag*fact_ucvol
    if (paral_grid) then
-     call xmpi_sum(hatstr_diag,my_comm_grid,ier)
+     call xpaw_mpi_sum(hatstr_diag,my_comm_grid,ier)
    end if
 
 !  Convert hat contribution
