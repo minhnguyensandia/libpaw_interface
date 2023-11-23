@@ -1,7 +1,8 @@
 ! This subroutine calls pawgrnl, which gives term F2 (Eq. 31)
 ! of the PAW paper (Torrent 2008)
 
-subroutine paw_force(natom,ntypat,typat,ngfftdg,nfft,nhat,xred,rprimd,gmet,ucvol,vtrial,vxc,nspden)
+subroutine paw_force(natom,ntypat,typat,ngfftdg,nfft,nhat,xred,rprimd,gmet,ucvol,vtrial,vxc,nspden, &
+    grnl,nlstr)
     use libpaw_mod
     use m_kg
     use m_paw_dfpt

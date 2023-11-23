@@ -138,6 +138,12 @@ subroutine prepare_libpaw(ecut,ecutpaw,gmet,rprimd,gprimd,ucvol,ngfft,ngfftdg, &
         & pawfgrtab, pawtab, rprimd, typat, ucvol, xred, &
         & n3, fftn3_distrib, ffti3_local)
 
+    !if force/stress required; will add flag later
+    call nhatgrid(atindx1, gmet, natom, natom, nattyp, ngfftdg, ntypat, &
+        & 0, 0, 1, 0, 1, & !optcut, optgr0, optgr1, optgr2, optrad
+        & pawfgrtab, pawtab, rprimd, typat, ucvol, xred, &
+        & n3, fftn3_distrib, ffti3_local)
+
     !do ia = 1, natom
     !    write(16,*) pawfgrtab(ia)%gylm
     !    write(16,*)
