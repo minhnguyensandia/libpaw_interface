@@ -218,7 +218,7 @@ subroutine initro(pawtab,atindx,densty,gmet,gsqcut,izero,mgfft,mqgrid,natom,natt
  real(dp),intent(in) :: qgrid(mqgrid),spinat(3,natom),zion(ntypat)
  real(dp),intent(in) :: znucl(ntypat)
  real(dp),intent(out) :: rhor(nfft,nspden)
- real(dp) :: rhog(2,nfft)
+ 
  type(pawtab_type),intent(in) :: pawtab(ntypat*usepaw)
 
 !Local variables-------------------------------
@@ -235,7 +235,7 @@ subroutine initro(pawtab,atindx,densty,gmet,gsqcut,izero,mgfft,mqgrid,natom,natt
 !arrays
  integer :: n2_in,n3_in
  integer, intent(in) :: fftn2_distrib(n2_in),ffti2_local(n2_in),fftn3_distrib(n3_in),ffti3_local(n3_in)
- real(dp),allocatable :: length(:),spinat_indx(:,:),work(:)
+ real(dp),allocatable :: length(:),spinat_indx(:,:),work(:),rhog(:,:)
  logical,allocatable :: use_gaussian(:)
 
 ! *************************************************************************
@@ -252,6 +252,7 @@ subroutine initro(pawtab,atindx,densty,gmet,gsqcut,izero,mgfft,mqgrid,natom,natt
  me_fft = xpaw_mpi_comm_rank(xpaw_mpi_world)
  LIBPAW_ALLOCATE(work,(nfft))
  LIBPAW_ALLOCATE(spinat_indx,(3,natom))
+ LIBPAW_ALLOCATE(rhog,(2,nfft))
 
 !Transfer the spinat array to an array in which the atoms have the proper order, type by type.
  do ia=1,natom
@@ -542,6 +543,7 @@ subroutine initro(pawtab,atindx,densty,gmet,gsqcut,izero,mgfft,mqgrid,natom,natt
  LIBPAW_DEALLOCATE(use_gaussian)
  LIBPAW_DEALLOCATE(spinat_indx)
  LIBPAW_DEALLOCATE(work)
+ LIBPAW_DEALLOCATE(rhog)
 
  contains
 
