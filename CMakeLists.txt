@@ -55,7 +55,6 @@ add_library(paw_level4 OBJECT
     m_pawpsp.F90
     m_pawdij.F90)
 add_dependencies(paw_level4 paw_xc paw_level3)
-target_include_directories(paw_level4 PUBLIC)
 
 add_subdirectory(abi_add_paw)
 add_subdirectory(test)
