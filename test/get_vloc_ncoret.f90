@@ -14,6 +14,7 @@ subroutine get_vloc_ncoret(ngfftdg,nfft,natom,ntypat,rprimd,gprimd,gmet,ucvol,xr
     integer :: nfft, mgrid, qprtrb(3)
     integer :: ngfftdg(3)
     integer :: natom, ntypat
+    integer :: optgr, optn, optn2, optv, optstr, optatm, optdyfr, opteltfr
     real*8  :: rprimd(3,3),gprimd(3,3),gmet(3,3)
     real*8  :: ucvol,xred(3,natom)
 
@@ -27,14 +28,36 @@ subroutine get_vloc_ncoret(ngfftdg,nfft,natom,ntypat,rprimd,gprimd,gmet,ucvol,xr
     rcut = 0d0
     vprtrb = 0d0
 
+    optatm  = 1
+    optdyfr = 0
+    opteltfr = 0
+    optgr   = 0
+    optn    = 1
+    optn2   = 1
+    optstr  = 0
+    optv    = 1
+
     call getph(atindx,natom,ngfftdg(1),ngfftdg(2),ngfftdg(3),ph1d,xred)
 
-    call atm2fft(atindx1,ncoret,vloc,dummy,dummy2,dummy9,dummy1,gmet,gprimd,dummy3,dummy4,gsqcutdg, &
-        & mgrid,mqgrid,natom,nattyp,nfft,ngfftdg,ntypat,1,0,0,0,1,1,0,1, &
-        & pawtab,ph1d,qgrid_vl,qprtrb,rcut,dummy5,rprimd,dummy6,dummy7,&
-        & ucvol,1,dummy8,dummy8,dummy8,vprtrb,vlspl,&
-        & ngfftdg(2),fftn2_distrib,ffti2_local,ngfftdg(3),fftn3_distrib,ffti3_local)
-    
+    allocate(dummy(3*3*natom*optn*optdyfr))
+    allocate(dummy1(3*3*natom*optn*optdyfr))
+    allocate(dummy2(3*3*natom*optn*optdyfr))
+    allocate(dummy3(3*natom*optn*optgr))
+    allocate(dummy4(3*natom*optn*optgr))
+    allocate(dummy5(2*nfft*optv*max(optgr,optstr,optdyfr,opteltfr)))
+    !allocate(dummy6(6*optn*optstr))
+    !allocate(dummy7(6*optv*optstr))
+    allocate(dummy8(2*nfft*optn*opteltfr))
+    allocate(dummy9(6+3*natom*6))
+
+
+    call atm2fft(atindx1,ncoret,vloc,dummy,dummy2,dummy9,dummy1,gmet,gprimd,&
+                dummy3,dummy4,gsqcutdg, mgrid,mqgrid,natom,nattyp,nfft,ngfftdg,ntypat,&
+                1,0,0,optgr,optn,optn2,optstr,optv, &
+                !1,0,0,0,1,1,0,1, &
+                & pawtab,ph1d,qgrid_vl,qprtrb,rcut,dummy5,rprimd,dummy6,dummy7,ucvol,1,dummy8,dummy8,dummy8,vprtrb,vlspl,&
+                & ngfftdg(2),fftn2_distrib,ffti2_local,ngfftdg(3),fftn3_distrib,ffti3_local)
+        
     !to prevent leakage
     if(allocated(dummy)) deallocate(dummy)
     if(allocated(dummy1)) deallocate(dummy1)

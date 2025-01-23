@@ -15,8 +15,8 @@ subroutine calculate_dij(natom,ntypat,ixc,xclevel,nfft,nspden,xred,ucvol,gprimd,
 
     write(*,*) '4. Generating dij from on-site rhoij, v_ks and v_xc'
 
-    ! Note : in PAW calculations, v_h is calculated with ncomp + ntilde + ncoretilde
-    ! while v_xc is calculated with ntilde + ncoretilde
+    ! Note : in Abinit PAW calculations, v_h is calculated with ncomp + ntilde + ncoretilde
+    ! while v_xc is calculated with ntilde + ncoretilde by default
 
     nucdipmom = 0.0
     qphon = 0.0
